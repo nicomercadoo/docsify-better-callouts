@@ -1,0 +1,18 @@
+{
+  "name": "docsify-better-callouts",
+  "version": "0.1.0",
+  "description": "A Docsify pluggin to impove (and customize) the default callouts.",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+  },
+  "keywords": [
+    "docsify",
+    "docsify-plugin",
+    "markdown"
+  ],
+  "author": "Nicolás Mercado",
+  "license": "GPL-3.0",
+  "devDependencies": {
+  }
+}
