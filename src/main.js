@@ -4,8 +4,8 @@
 // Author: Nicolás Mercado (nicolasmercado452@gmail.com)
 // Date: 2026
 //=============================================================================
-
 import { genConfig } from './config.js';
+import { renderIcon } from './icons';
 
 (function () {
     var betterCalloutsPlugin = function (hook, vm) {
@@ -13,12 +13,12 @@ import { genConfig } from './config.js';
 
         hook.init(function () {
             config = genConfig(vm.config.betterCallouts || {});
-            console.log('Config:', config);
+            console.debug('Config:', config);
         })
 
         hook.afterEach(function (html) {
-            console.log('Processing callouts in the page:', vm.route.path);
-            console.log('Processing HTML:', html);
+            console.debug('Processing callouts in the page:', vm.route.path);
+            console.debug('Processing HTML:', html);
 
             const tagsPattern = Object.keys(config.tags).join('|');
             const betterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<type>${tagsPattern})(?<ignored>[\\s\\S]*?)\\]\\s?(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
@@ -26,32 +26,40 @@ import { genConfig } from './config.js';
 
             return html.replace(betterCalloutsPattern,
                 (...args) => {
-                    console.log('Found a callout:', args[0]);
-                    // console.log('Callout type:', args[1]);
-                    console.log('Callout content:', args[2]);
-                    // console.log('Match groups:', args.at(-1));
-                    // console.log('All arguments:', args);
-                    // console.log('Last Arg:', args.at(-1));
+                    console.debug('Found a callout:', args[0]);
+                    // console.debug('Callout type:', args[1]);
+                    console.debug('Callout content:', args[2]);
+                    // console.debug('Match groups:', args.at(-1));
+                    // console.debug('All arguments:', args);
+                    // console.debug('Last Arg:', args.at(-1));
                     const namedCaptureGroups = args.at(-1);
-                    console.log('Named capture groups:', namedCaptureGroups);
+                    // console.debug('Named capture groups:', namedCaptureGroups);
                     const { type: calloutType, ignored: ignoredContentInTag, content: calloutContent } = namedCaptureGroups;
-                    console.log('Ignored content in tag:', ignoredContentInTag);
                     if (ignoredContentInTag) {
+                        console.warn('docsify-better-callouts: Ignored content in tag:', ignoredContentInTag);
                     }
-                    console.log('Callout type (from groups):', calloutType);
-                    console.log('Callout content (from groups):', calloutContent);
+                    // console.debug('Callout type (from groups):', calloutType);
+                    // console.debug('Callout content (from groups):', calloutContent);
 
-                    const cssClassName = config.tags[calloutType.toUpperCase()].cssClassName || 'callout';
-                    const title = config.tags[calloutType.toUpperCase()].title || calloutType;
+                    const tagConfig = config.tags[calloutType.toUpperCase()];
+                    if (!tagConfig) {
+                        console.warn(`docsify-better-callouts: No configuration found for callout type "${calloutType}". Using default values.`);
+                    }
+
+                    const cssClassName = tagConfig.cssClassName || 'callout';
+                    const title = tagConfig.title || calloutType;
+                    const icon = renderIcon(tagConfig.icon);
+                    console.debug(`Callout type "${calloutType}" will be rendered with title "${title}", CSS class "${cssClassName}", and icon:`, icon);
 
                     const betterCallout = `<blockquote class="better-callout ${cssClassName}">`
-                        + `<p class="title">`
-                        + `<span class="icon icon-${cssClassName}"></span>`
-                        + `${title}`
+                        + `<p class="title title-${cssClassName}">`
+                        + `<span class="icon-container icon-container-${cssClassName}">` + icon + `</span>`
+                        + title
                         + `</p>`
-                        + `<p>${calloutContent}`
+                        + `<p>`
+                        + calloutContent
                         + `</blockquote>`;
-                    console.log('Generated better callout HTML:', betterCallout);
+                    console.debug('Generated better callout HTML:', betterCallout);
 
                     return betterCallout;
                 });
