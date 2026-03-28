@@ -8,11 +8,11 @@ const defaultConfig = {
         'DEFINITION': { title: 'Definition', icon: icons.defIcon, cssClassName: 'definition' },
         'TIP': { title: 'Tip', icon: icons.tipIcon, cssClassName: 'tip' },
         'INFO': { title: 'Info', icon: icons.infoIcon, cssClassName: 'info' },
-        'ADVICE': { title: 'Advice', icon: icons.adviceIcon, cssClassName: 'advice' },
-        'ATTENTION': { title: 'Atterntion', icon: icons.attentionIcon, cssClassName: 'attention' },
-        'IMPORTANT': { title: 'Important', icon: icons.importantIcon, cssClassName: 'important' },
+        'ADVICE': { title: 'Advice', icon: icons.warningIcon, cssClassName: 'advice' },
+        'ATTENTION': { title: 'Atterntion', icon: icons.warningIcon, cssClassName: 'attention' },
+        'IMPORTANT': { title: 'Important', icon: icons.warningIcon, cssClassName: 'important' },
         'DANGER': { title: 'Danger', icon: icons.dangerIcon, cssClassName: 'danger' },
-        'CAUTION': { title: 'Caution', icon: icons.cautionIcon, cssClassName: 'caution' },
+        'CAUTION': { title: 'Caution', icon: icons.dangerIcon, cssClassName: 'caution' },
     }
 };
 
