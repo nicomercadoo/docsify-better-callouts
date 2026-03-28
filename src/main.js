@@ -52,10 +52,10 @@ import { renderIcon } from './icons';
                     console.debug(`Callout type "${calloutType}" will be rendered with title "${title}", CSS class "${cssClassName}", and icon:`, icon);
 
                     const betterCallout = `<blockquote class="better-callout ${cssClassName}">`
-                        + `<p class="title title-${cssClassName}">`
-                        + `<span class="icon-container icon-container-${cssClassName}">` + icon + `</span>`
-                        + title
-                        + `</p>`
+                        + `<div class="head head-${cssClassName}">`
+                        + `<div class="icon-container icon-container-${cssClassName}">${icon}</div>`
+                        + `<div class="title-continer title-container-${cssClassName}"><strong>${title}</strong></div>`
+                        + `</div>`
                         + `<p>`
                         + calloutContent
                         + `</blockquote>`;
