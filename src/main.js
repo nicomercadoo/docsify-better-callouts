@@ -71,7 +71,7 @@ import { renderIcon } from './icons';
                     const betterCallout = `<blockquote class="better-callout ${cssClassName}">`
                         + `<div class="head head-${cssClassName}">`
                         + `<div class="icon-container icon-container-${cssClassName}">${icon}</div>`
-                        + `<div class="title-continer title-container-${cssClassName}"><strong>${title}</strong></div>`
+                        + `<div class="title-continer title-container-${cssClassName}">${title}</div>`
                         + `</div>`
                         + `<p>`
                         + calloutContent
