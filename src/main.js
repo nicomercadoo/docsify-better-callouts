@@ -32,8 +32,15 @@ import { renderIcon } from './icons';
                     const namedCaptureGroups = args.at(-1);
                     const { level: calloutLevel, type: calloutType, ignored: ignoredContentInTag, content: calloutContent } = namedCaptureGroups;
 
-                    let cleanedCalloutHead = `${calloutLevel} [!${calloutType}]`;
+                    let cleanedCalloutHead = `${calloutLevel} [!${calloutType}]\n${calloutLevel}`;
                     if (calloutContent) {
+                        /*
+                            It appends '\n${calloutLevel}' again because the first one is needed to break the line after the callout head,
+                            and the second one is needed to ensure that the content of the callout head is rendered as a separate
+                            paragraph inside the blockquote, independent of the content of the callout body.
+                            Then the head is isolated in its own '<p></p>' tags.
+                            Also, this way, it avoids potential empty '<p></p>' tags if the first content of the callout body is not text.
+                        */
                         cleanedCalloutHead += `\n${calloutLevel} ${calloutContent}`;
                     }
                     console.debug('Cleaned callout head markdown:', cleanedCalloutHead);
@@ -50,7 +57,7 @@ import { renderIcon } from './icons';
             console.debug('Processing callouts in the page:', vm.route.path);
             console.debug('Processing HTML:', html);
 
-            const htmlBetterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<type>${tagsPattern})\\]\\s?(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
+            const htmlBetterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<type>${tagsPattern})\\]\\s?</p>\\s*(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
 
             return html.replace(htmlBetterCalloutsPattern,
                 (...args) => {
@@ -73,7 +80,6 @@ import { renderIcon } from './icons';
                         + `<div class="icon-container icon-container-${cssClassName}">${icon}</div>`
                         + `<div class="title-continer title-container-${cssClassName}">${title}</div>`
                         + `</div>`
-                        + `<p>`
                         + calloutContent
                         + `</blockquote>`;
                     console.debug('Generated better callout HTML:', betterCallout);
