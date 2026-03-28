@@ -4,9 +4,11 @@
 // Author: Nicolás Mercado (nicolasmercado452@gmail.com)
 // Date: 2026
 //=============================================================================
+
 import { genConfig } from './config.js';
 import { renderIcon } from './icons';
 
+// GitHub Alert like callouts for Docsify
 (function () {
     var betterCalloutsPlugin = function (hook, vm) {
         let config;
@@ -27,18 +29,19 @@ import { renderIcon } from './icons';
             return md.replaceAll(mdBetterCalloutHeadPattern,
                 (...args) => {
                     console.debug('Found a callout markdown:', args[0]);
-                    console.debug('Mattched head:', args[0]);
-                    const namedCaptureGroups = args.at(-1)
+                    const namedCaptureGroups = args.at(-1);
                     const { level: calloutLevel, type: calloutType, ignored: ignoredContentInTag, content: calloutContent } = namedCaptureGroups;
 
                     let cleanedCalloutHead = `${calloutLevel} [!${calloutType}]`;
                     if (calloutContent) {
                         cleanedCalloutHead += `\n${calloutLevel} ${calloutContent}`;
                     }
+                    console.debug('Cleaned callout head markdown:', cleanedCalloutHead);
+
                     if (ignoredContentInTag) {
                         console.warn('docsify-better-callouts: Ignored content in head tag:', ignoredContentInTag);
                     }
-                    console.debug('Cleaned callout head markdown:', cleanedCalloutHead);
+
                     return cleanedCalloutHead;
                 });
         })
@@ -47,21 +50,13 @@ import { renderIcon } from './icons';
             console.debug('Processing callouts in the page:', vm.route.path);
             console.debug('Processing HTML:', html);
 
-            const betterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<type>${tagsPattern})\\]\\s?(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
+            const htmlBetterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<type>${tagsPattern})\\]\\s?(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
 
-            return html.replace(betterCalloutsPattern,
+            return html.replace(htmlBetterCalloutsPattern,
                 (...args) => {
                     console.debug('Found a callout:', args[0]);
-                    // console.debug('Callout type:', args[1]);
-                    console.debug('Callout content:', args[2]);
-                    // console.debug('Match groups:', args.at(-1));
-                    // console.debug('All arguments:', args);
-                    // console.debug('Last Arg:', args.at(-1));
                     const namedCaptureGroups = args.at(-1);
-                    // console.debug('Named capture groups:', namedCaptureGroups);
-                    const { type: calloutType, content: calloutContent } = namedCaptureGroups;
-                    // console.debug('Callout type (from groups):', calloutType);
-                    // console.debug('Callout content (from groups):', calloutContent);
+                    const { type: calloutType,  content: calloutContent } = namedCaptureGroups;
 
                     const tagConfig = config.tags[calloutType.toUpperCase()];
                     if (!tagConfig) {
@@ -92,40 +87,3 @@ import { renderIcon } from './icons';
     $docsify = $docsify || {}
     $docsify.plugins = [].concat(betterCalloutsPlugin, $docsify.plugins || [])
 })();
-
-
-// GitHub Alert like callouts for Docsify
-//
-// Usage:
-// > [ !NOTE ] This is a note callout.
-// > [ !WARNING ] This is a warning callout.
-// > [ !TIP ] This is a tip callout.
-// > [ !INFO ] This is an info callout.
-// > [ !DANGER ] This is a danger callout.
-// > [ !CAUTION ] This is a caution callout.
-// function betterCallouts(quote) {
-//     const betterCalloutsPattern = /^>\s*\[ !([a-zA-Z]+) \]\s/;
-//     const matches = quote.match(betterCalloutsPattern);
-//     if (!matches) {
-//         return quote; // Not a callout, return as is
-//     }
-
-//     const type = matches[1];
-//     const title = matches[2];
-
-
-//     const calloutTypes = {
-//         note: 'Note',
-//         warning: 'Warning',
-//         tip: 'Tip',
-//         info: 'Info',
-//         danger: 'Danger',
-//         caution: 'Caution',
-//     };
-
-//     const calloutType = calloutTypes[type.toLowerCase()] || 'Note';
-//     const calloutTitle = title || calloutType;
-
-//     return `<blockquote class="callout ${calloutType.toLowerCase()}"><strong>${calloutTitle}:</strong>`;
-//     return quote;
-// }
