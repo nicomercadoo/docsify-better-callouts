@@ -10,19 +10,44 @@ import { renderIcon } from './icons';
 (function () {
     var betterCalloutsPlugin = function (hook, vm) {
         let config;
+        let tagsPattern;
 
         hook.init(function () {
             config = genConfig(vm.config.betterCallouts || {});
             console.debug('Config:', config);
+            tagsPattern = Object.keys(config.tags).join('|');
+        })
+
+        hook.beforeEach(function (md) {
+            console.debug('Processing markdown for callouts in the page:', vm.route.path);
+            console.debug('Original markdown:', md);
+
+            const mdBetterCalloutHeadPattern = new RegExp(`^(?<level>( *>)*) *\\[\\s*!(?<type>${tagsPattern})(?<ignored>[\\s\\S]*?)\\] ?(?<content>[\\s\\S]*?)$`, 'gm');
+            // `> [$<type>] \n> $<content>`
+            return md.replaceAll(mdBetterCalloutHeadPattern,
+                (...args) => {
+                    console.debug('Found a callout markdown:', args[0]);
+                    console.debug('Mattched head:', args[0]);
+                    const namedCaptureGroups = args.at(-1)
+                    const { level: calloutLevel, type: calloutType, ignored: ignoredContentInTag, content: calloutContent } = namedCaptureGroups;
+
+                    let cleanedCalloutHead = `${calloutLevel} [!${calloutType}]`;
+                    if (calloutContent) {
+                        cleanedCalloutHead += `\n${calloutLevel} ${calloutContent}`;
+                    }
+                    if (ignoredContentInTag) {
+                        console.warn('docsify-better-callouts: Ignored content in head tag:', ignoredContentInTag);
+                    }
+                    console.debug('Cleaned callout head markdown:', cleanedCalloutHead);
+                    return cleanedCalloutHead;
+                });
         })
 
         hook.afterEach(function (html) {
             console.debug('Processing callouts in the page:', vm.route.path);
             console.debug('Processing HTML:', html);
 
-            const tagsPattern = Object.keys(config.tags).join('|');
-            const betterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<type>${tagsPattern})(?<ignored>[\\s\\S]*?)\\]\\s?(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
-            // const betterCalloutsPattern = /<blockquote>\s*<p>\s*\[\s*!(?<type>[a-zA-Z]+)[\s\S]*\]\s?(?<content>[\s\S]*)<\/p>\s*<\/blockquote>/g;
+            const betterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<type>${tagsPattern})\\]\\s?(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
 
             return html.replace(betterCalloutsPattern,
                 (...args) => {
@@ -34,10 +59,7 @@ import { renderIcon } from './icons';
                     // console.debug('Last Arg:', args.at(-1));
                     const namedCaptureGroups = args.at(-1);
                     // console.debug('Named capture groups:', namedCaptureGroups);
-                    const { type: calloutType, ignored: ignoredContentInTag, content: calloutContent } = namedCaptureGroups;
-                    if (ignoredContentInTag) {
-                        console.warn('docsify-better-callouts: Ignored content in tag:', ignoredContentInTag);
-                    }
+                    const { type: calloutType, content: calloutContent } = namedCaptureGroups;
                     // console.debug('Callout type (from groups):', calloutType);
                     // console.debug('Callout content (from groups):', calloutContent);
 
