@@ -69,4 +69,14 @@ function checkUserConfig(userConfig) {
             console.warn(`docsify-better-callouts: Missing required property "cssClass" for tag "${tag}". This tag will be rendered without a custom CSS class.`);
         }
     }
+
+    // Check for invalid properties in the user config for each tag
+    for (const [tag, tagConfig] of Object.entries(userConfig.tags || {})) {
+        const validTagConfigKeys = Object.keys(defaultTag);
+        for (const key of Object.keys(tagConfig)) {
+            if (!validTagConfigKeys.includes(key)) {
+                console.warn(`docsify-better-callouts: Invalid configuration entry "${key}" for tag "${tag}". Valid entries are: ${validTagConfigKeys.join(', ')}. This entry will be ignored.`);
+            }
+        }
+    }
 }
