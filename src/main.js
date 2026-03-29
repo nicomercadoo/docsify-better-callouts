@@ -71,14 +71,14 @@ import { renderIcon } from './icons';
                     }
 
                     const cssClassName = tagConfig.cssClassName || 'callout';
-                    const title = tagConfig.title || calloutType;
+                    const label = tagConfig.label || calloutType;
                     const icon = renderIcon(tagConfig.icon);
-                    console.debug(`Callout type "${calloutType}" will be rendered with title "${title}", CSS class "${cssClassName}", and icon:`, icon);
+                    console.debug(`Callout type "${calloutType}" will be rendered with label "${label}", CSS class "${cssClassName}", and icon:`, icon);
 
                     const betterCallout = `<blockquote class="better-callout ${cssClassName}">`
                         + `<div class="head head-${cssClassName}">`
                         + `<div class="icon-container icon-container-${cssClassName}">${icon}</div>`
-                        + `<div class="title-continer title-container-${cssClassName}">${title}</div>`
+                        + `<div class="label-continer label-container-${cssClassName}">${label}</div>`
                         + `</div>`
                         + calloutContent
                         + `</blockquote>`;

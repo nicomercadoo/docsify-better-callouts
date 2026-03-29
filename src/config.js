@@ -1,24 +1,24 @@
 import * as icons from './icons.js';
 
 const defaultTag = {
-    title: '<strong>NOTE</strong',
+    label: '<strong>NOTE</strong',
     icon: icons.infoIcon,
     cssClassName: 'note',
 };
 
-// Callout types and their corresponding titles and CSS classes
+// Callout types and their corresponding labels and CSS classes
 const defaultConfig = {
     tags: {
-        'NOTE': { title: '<strong>Note</strong>', icon: icons.infoIcon, cssClassName: 'note' },
-        'WARNING': { title: '<strong>Warning</strong>', icon: icons.warningIcon, cssClassName: 'warning' },
-        'DEFINITION': { title: '<strong>Definition</strong>', icon: icons.defIcon, cssClassName: 'definition' },
-        'TIP': { title: '<strong>Tip</strong>', icon: icons.tipIcon, cssClassName: 'tip' },
-        'INFO': { title: '<strong>Info</strong>', icon: icons.infoIcon, cssClassName: 'info' },
-        'ADVICE': { title: '<strong>Advice</strong>', icon: icons.warningIcon, cssClassName: 'advice' },
-        'ATTENTION': { title: '<strong>Atterntion</strong>', icon: icons.warningIcon, cssClassName: 'attention' },
-        'IMPORTANT': { title: '<strong>Important</strong>', icon: icons.warningIcon, cssClassName: 'important' },
-        'DANGER': { title: '<strong>Danger</strong>', icon: icons.dangerIcon, cssClassName: 'danger' },
-        'CAUTION': { title: '<strong>Caution</strong>', icon: icons.dangerIcon, cssClassName: 'caution' },
+        'NOTE': { label: '<strong>Note</strong>', icon: icons.infoIcon, cssClassName: 'note' },
+        'WARNING': { label: '<strong>Warning</strong>', icon: icons.warningIcon, cssClassName: 'warning' },
+        'DEFINITION': { label: '<strong>Definition</strong>', icon: icons.defIcon, cssClassName: 'definition' },
+        'TIP': { label: '<strong>Tip</strong>', icon: icons.tipIcon, cssClassName: 'tip' },
+        'INFO': { label: '<strong>Info</strong>', icon: icons.infoIcon, cssClassName: 'info' },
+        'ADVICE': { label: '<strong>Advice</strong>', icon: icons.warningIcon, cssClassName: 'advice' },
+        'ATTENTION': { label: '<strong>Atterntion</strong>', icon: icons.warningIcon, cssClassName: 'attention' },
+        'IMPORTANT': { label: '<strong>Important</strong>', icon: icons.warningIcon, cssClassName: 'important' },
+        'DANGER': { label: '<strong>Danger</strong>', icon: icons.dangerIcon, cssClassName: 'danger' },
+        'CAUTION': { label: '<strong>Caution</strong>', icon: icons.dangerIcon, cssClassName: 'caution' },
     }
 };
 
@@ -59,8 +59,8 @@ function checkUserConfig(userConfig) {
 
     // Check for missing required properties in the user config for each tag
     for (const [tag, tagConfig] of Object.entries(userConfig.tags || {})) {
-        if (!tagConfig.title) {
-            console.warn(`docsify-better-callouts: Missing required property "title" for tag "${tag}". This tag will be rendered without a title.`);
+        if (!tagConfig.label) {
+            console.warn(`docsify-better-callouts: Missing required property "label" for tag "${tag}". This tag will be rendered without a label.`);
         }
         if (!tagConfig.icon) {
             console.warn(`docsify-better-callouts: Missing required property "icon" for tag "${tag}". This tag will be rendered without an icon.`);
