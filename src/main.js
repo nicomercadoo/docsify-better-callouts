@@ -70,15 +70,15 @@ import { renderIcon } from './icons';
                         console.warn(`docsify-better-callouts: No configuration found for callout type "${calloutType}". Using default values.`);
                     }
 
-                    const cssClassName = tagConfig.cssClassName || 'callout';
+                    const cssClass = tagConfig.cssClass || 'callout';
                     const label = tagConfig.label || calloutType;
                     const icon = renderIcon(tagConfig.icon);
-                    console.debug(`Callout type "${calloutType}" will be rendered with label "${label}", CSS class "${cssClassName}", and icon:`, icon);
+                    console.debug(`Callout type "${calloutType}" will be rendered with label "${label}", CSS class "${cssClass}", and icon:`, icon);
 
-                    const betterCallout = `<blockquote class="better-callout ${cssClassName}">`
-                        + `<div class="head head-${cssClassName}">`
-                        + `<div class="icon-container icon-container-${cssClassName}">${icon}</div>`
-                        + `<div class="label-continer label-container-${cssClassName}">${label}</div>`
+                    const betterCallout = `<blockquote class="better-callout ${cssClass}">`
+                        + `<div class="head head-${cssClass}">`
+                        + `<div class="icon-container icon-container-${cssClass}">${icon}</div>`
+                        + `<div class="label-continer label-container-${cssClass}">${label}</div>`
                         + `</div>`
                         + calloutContent
                         + `</blockquote>`;
