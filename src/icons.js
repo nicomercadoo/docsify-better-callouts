@@ -22,7 +22,7 @@ export function resolveIcon(iconValue) {
     // It is a URL or a local img/SVG file
     const isUrlOrPath = /^(https?:\/\/|\.?\/)/i.test(iconStr) || /\.(svg|png|jpg|jpeg|gif|webp)$/i.test(iconStr);
     if (isUrlOrPath) {
-        return `<img src="${iconStr}" class="icon-img" alt="icon" style="width: 1.2em; height: 1.2em; vertical-align: middle;" />`;
+        return `<img src="${iconStr}" class="icon-img icon" alt="icon"/>`;
     }
 
     console.warn(`Icon value "${iconValue}" is not a valid HTML string, URL, or image path. No icon will be rendered.`);
