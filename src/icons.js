@@ -7,7 +7,7 @@ export const tipIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" vi
 export const dangerIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M330-120 120-330v-300l210-210h300l210 210v300L630-120H330Zm36-190 114-114 114 114 56-56-114-114 114-114-56-56-114 114-114-114-56 56 114 114-114 114 56 56Zm-2 110h232l164-164v-232L596-760H364L200-596v232l164 164Zm116-280Z"/></svg>`;
 
 
-export function renderIcon(iconValue) {
+export function resolveIcon(iconValue) {
     console.debug('Rendering icon for value:', iconValue);
     // It is null, undefined, or an empty string. No icon to render.
     if (!iconValue || iconValue === '') return '';

@@ -6,7 +6,7 @@
 //=============================================================================
 
 import { genConfig } from './config.js';
-import { renderIcon } from './icons';
+import { resolveIcon } from './icons';
 
 // GitHub Alert like callouts for Docsify
 (function () {
@@ -72,7 +72,7 @@ import { renderIcon } from './icons';
 
                     const cssClass = tagConfig.cssClass || 'callout';
                     const label = tagConfig.label || calloutType;
-                    const icon = renderIcon(tagConfig.icon);
+                    const icon = resolveIcon(tagConfig.icon);
                     console.debug(`Callout type "${calloutType}" will be rendered with label "${label}", CSS class "${cssClass}", and icon:`, icon);
 
                     const betterCallout = `<blockquote class="better-callout ${cssClass}">`
