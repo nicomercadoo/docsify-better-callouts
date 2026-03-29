@@ -10,7 +10,7 @@ export const dangerIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px"
 export function renderIcon(iconValue) {
     console.debug('Rendering icon for value:', iconValue);
     // It is null, undefined, or an empty string. No icon to render.
-    if (!iconValue) return '';
+    if (!iconValue || iconValue === '') return '';
 
     const iconStr = String(iconValue).trim();
 
