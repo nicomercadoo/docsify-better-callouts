@@ -5,7 +5,7 @@
 // Date: 2026
 //=============================================================================
 
-import { mergeConfig, defaultConfig } from './config.js';
+import { mergeConfig, defaultConfig, getTagConfig } from './config.js';
 import { resolveIcon } from './icons.js';
 
 // GitHub Alert like callouts for Docsify
@@ -17,6 +17,7 @@ import { resolveIcon } from './icons.js';
         hook.init(function () {
             config = mergeConfig(defaultConfig, vm.config.betterCallouts || {});
             console.debug('Config:', config);
+            console.debug('vm:', vm);
             tagsPattern = Object.keys(config.tags).join('|');
         })
 
@@ -65,13 +66,10 @@ import { resolveIcon } from './icons.js';
                     const namedCaptureGroups = args.at(-1);
                     const { type: calloutType,  content: calloutContent } = namedCaptureGroups;
 
-                    const tagConfig = config.tags[calloutType.toUpperCase()];
-                    if (!tagConfig) {
-                        console.warn(`docsify-better-callouts: No configuration found for callout type "${calloutType}". Using default values.`);
-                    }
+                    const tagConfig = getTagConfig(calloutType, config);
 
-                    const cssClass = tagConfig.cssClass || 'callout';
-                    const label = tagConfig.label || calloutType;
+                    const cssClass = tagConfig.cssClass;
+                    const label = tagConfig.label;
                     const icon = resolveIcon(tagConfig.icon, config);
                     console.debug(`Callout type "${calloutType}" will be rendered with label "${label}", CSS class "${cssClass}", and icon:`, icon);
 
