@@ -5,9 +5,9 @@
   "main": "src/main.js",
   "type": "module",
   "scripts": {
-      "build": "bun build src/main.js --outdir=dist --minify",
-      "build:dev": "bun build src/main.js --outdir=dist --sourcemap",
-      "build:watch": "bun build src/main.js --outdir=dist --sourcemap --watch"
+      "build": "bun build src/main.js src/styles.css --outdir=dist --minify",
+      "build:dev": "bun build src/main.js src/styles.css --outdir=dist --sourcemap",
+      "build:watch": "bun build src/main.js src/styles.css --outdir=dist --sourcemap --watch"
   },
   "keywords": [
     "docsify",
