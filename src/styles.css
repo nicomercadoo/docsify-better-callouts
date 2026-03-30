@@ -1,0 +1,87 @@
+/* 1. Paleta de Colores Globales (API del Tema) */
+:root {
+    --bc-green:  #42b983;
+    --bc-blue:   #0275d8;
+    --bc-orange: #f0ad4e;
+    --bc-red:    #d9534f;
+    --bc-purple: #6f42c1;
+    --bc-gray:   #828c99;
+    --bc-text:   inherit;
+}
+
+/* 2. Estructura Base Libre de Docsify */
+.better-callouts {
+    --callout-theme: var(--bc-gray); /* Fallback por defecto */
+
+    background-color: color-mix(in srgb, var(--callout-theme) 10%, transparent);
+    border-left: 4px solid var(--callout-theme);
+    margin: 1.5em 0;
+    padding: 1rem 1.5rem;
+    color: var(--bc-text);
+
+    border-radius: 0 4px 4px 0;
+}
+
+/* 3. Encabezado */
+.better-callouts .callout-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--callout-theme); /* El título siempre toma el color de acento */
+}
+
+/* 4. Ícono */
+.better-callouts .callout-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.better-callouts .callout-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: var(--callout-theme);
+}
+
+/* 5. Limpieza de márgenes del body */
+.better-callouts .callout-body > *:last-child {
+    margin-bottom: 0;
+}
+
+/* =========================================
+   6. Modificadores (Cortos y Elegantes)
+   ========================================= */
+.better-callouts.note,
+.better-callouts.tip {
+    --callout-theme: var(--bc-green);
+}
+
+.better-callouts.info {
+    --callout-theme: var(--bc-blue);
+}
+
+.better-callouts.definition {
+    --callout-theme: var(--bc-purple);
+}
+
+.better-callouts.warning,
+.better-callouts.advice,
+.better-callouts.attention,
+.better-callouts.important {
+    --callout-theme: var(--bc-orange);
+}
+
+.better-callouts.danger,
+.better-callouts.caution {
+    --callout-theme: var(--bc-red);
+}
+
+.better-callouts.default {
+    --callout-theme: var(--bc-gray);
+}
