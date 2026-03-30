@@ -1,9 +1,9 @@
 import * as icons from './icons.js';
 
 const defaultTag = {
-    label: '<strong>NOTE</strong',
+    label: 'NOTE',
     icon: icons.infoIcon,
-    cssClass: 'note',
+    cssClass: 'default',
 };
 
 // Callout types and their corresponding labels and CSS classes
