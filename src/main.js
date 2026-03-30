@@ -75,13 +75,13 @@ import { resolveIcon } from './icons';
                     const icon = resolveIcon(tagConfig.icon);
                     console.debug(`Callout type "${calloutType}" will be rendered with label "${label}", CSS class "${cssClass}", and icon:`, icon);
 
-                    const betterCallout = `<blockquote class="better-callout ${cssClass}">`
-                        + `<div class="head head-${cssClass}">`
-                        + `<div class="icon-container icon-container-${cssClass}">${icon}</div>`
-                        + `<div class="label-continer label-container-${cssClass}">${label}</div>`
-                        + `</div>`
-                        + calloutContent
-                        + `</blockquote>`;
+                    const betterCallout = `<div class="better-callouts ${cssClass}">`
+                        + `<div class="callout-head">`
+                        + `<div class="callout-icon">${icon}</div>`
+                        + `<div class="callout-label">${label}</div>`
+                        + `</div>` // end callout-head
+                        + `<div class="callout-body">${calloutContent}</div>`
+                        + `</div>`; // end better-callouts
                     console.debug('Generated better callout HTML:', betterCallout);
 
                     return betterCallout;
