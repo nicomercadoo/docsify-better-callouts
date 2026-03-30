@@ -7,7 +7,7 @@ const defaultTag = {
 };
 
 // Callout types and their corresponding labels and CSS classes
-const defaultConfig = {
+export const defaultConfig = {
     tags: {
         'NOTE': { label: 'Note', icon: icons.infoIcon, cssClass: 'note' },
         'WARNING': { label: 'Warning', icon: icons.warningIcon, cssClass: 'warning' },
@@ -25,21 +25,21 @@ const defaultConfig = {
 };
 
 // Generate the pluggin configuration by merging the default config with the user-provided config
-export function genConfig(userConfig) {
-    if (Object.keys(userConfig).length === 0) return defaultConfig;
+export function mergeConfig(baseConfig, userConfig) {
+    if (Object.keys(userConfig).length === 0) return baseConfig;
     // console.debug('User Config:', userConfig)
-    checkUserConfig(userConfig);
+    checkUserConfigWith(baseConfig, userConfig);
 
     // Merge user config with default config
     // User config overrides default config
-    let config = defaultConfig;
+    let config = baseConfig;
     for (const [userTag, userTagConfig] of Object.entries(userConfig.tags || {})) {
         if (config.tags[userTag]) {
             // Override the default config for the tag with the user-provided config
             config.tags[userTag] = { ...config.tags[userTag], ...userTagConfig };
         } else {
             // Append the user-provided config for the new tag
-            let newTag = Object.create(defaultConfig.defaultTag);
+            let newTag = Object.create(baseConfig.defaultTag);
             Object.assign(newTag, userTagConfig);
             config.tags[userTag] = newTag;
         }
@@ -47,8 +47,8 @@ export function genConfig(userConfig) {
     return config;
 }
 
-function checkUserConfig(userConfig) {
-    validKeys = Object.keys(defaultConfig);
+function checkUserConfigWith(baseConfig, userConfig) {
+    validKeys = Object.keys(baseConfig);
     // console.debug('Valid configuration keys:', validKeys);
     // console.debug('User keys:', Object.keys(userConfig));
 
@@ -74,7 +74,7 @@ function checkUserConfig(userConfig) {
 
     // Check for invalid properties in the user config for each tag
     for (const [tag, tagConfig] of Object.entries(userConfig.tags || {})) {
-        const validTagConfigKeys = Object.keys(defaultTag);
+        const validTagConfigKeys = Object.keys(baseConfig.defaultTag);
         for (const key of Object.keys(tagConfig)) {
             if (!validTagConfigKeys.includes(key)) {
                 console.warn(`docsify-better-callouts: Invalid configuration entry "${key}" for tag "${tag}". Valid entries are: ${validTagConfigKeys.join(', ')}. This entry will be ignored.`);
