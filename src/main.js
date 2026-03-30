@@ -25,15 +25,15 @@ import { resolveIcon } from './icons.js';
             console.debug('Processing markdown for callouts in the page:', vm.route.path);
             console.debug('Original markdown:', md);
 
-            const mdBetterCalloutHeadPattern = new RegExp(`^(?<level>( *>)*) *\\[\\s*!(?<type>${tagsPattern})(?<ignored>[\\s\\S]*?)\\] ?(?<content>[\\s\\S]*?)$`, 'gm');
-            // `> [$<type>] \n> $<content>`
+            const mdBetterCalloutHeadPattern = new RegExp(`^(?<level>( *>)*) *\\[\\s*!(?<tag>${tagsPattern})(?<ignored>[\\s\\S]*?)\\] ?(?<content>[\\s\\S]*?)$`, 'gm');
+
             return md.replaceAll(mdBetterCalloutHeadPattern,
                 (...args) => {
                     console.debug('Found a callout markdown:', args[0]);
                     const namedCaptureGroups = args.at(-1);
-                    const { level: calloutLevel, type: calloutType, ignored: ignoredContentInTag, content: calloutContent } = namedCaptureGroups;
+                    const { level: calloutLevel, tag: calloutTag, ignored: ignoredContentInTag, content: calloutContent } = namedCaptureGroups;
 
-                    let cleanedCalloutHead = `${calloutLevel} [!${calloutType}]\n${calloutLevel}`;
+                    let cleanedCalloutHead = `${calloutLevel} [!${calloutTag}]\n${calloutLevel}`;
                     if (calloutContent) {
                         /*
                             It appends '\n${calloutLevel}' again because the first one is needed to break the line after the callout head,
@@ -58,20 +58,20 @@ import { resolveIcon } from './icons.js';
             console.debug('Processing callouts in the page:', vm.route.path);
             console.debug('Processing HTML:', html);
 
-            const htmlBetterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<type>${tagsPattern})\\s*\\]\\s?</p>\\s*(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
+            const htmlBetterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<tag>${tagsPattern})\\s*\\]\\s?</p>\\s*(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
 
             return html.replace(htmlBetterCalloutsPattern,
                 (...args) => {
                     console.debug('Found a callout:', args[0]);
                     const namedCaptureGroups = args.at(-1);
-                    const { type: calloutType,  content: calloutContent } = namedCaptureGroups;
+                    const { tag: calloutType,  content: calloutContent } = namedCaptureGroups;
 
                     const tagConfig = getTagConfig(calloutType, config);
 
                     const cssClass = tagConfig.cssClass;
                     const label = tagConfig.label;
                     const icon = resolveIcon(tagConfig.icon, config);
-                    console.debug(`Callout type "${calloutType}" will be rendered with label "${label}", CSS class "${cssClass}", and icon:`, icon);
+                    console.debug(`Callout tag "${calloutType}" will be rendered with label "${label}", CSS class "${cssClass}", and icon:`, icon);
 
                     const betterCallout = `<div class="better-callouts ${cssClass}">`
                         + `<div class="callout-head">`
