@@ -19,7 +19,9 @@ const defaultConfig = {
         'IMPORTANT': { label: 'Important', icon: icons.warningIcon, cssClass: 'important' },
         'DANGER': { label: 'Danger', icon: icons.dangerIcon, cssClass: 'danger' },
         'CAUTION': { label: 'Caution', icon: icons.dangerIcon, cssClass: 'caution' },
-    }
+    },
+    defaultTag: defaultTag, // Default configuration for tags that are not explicitly defined
+    svgFileAsRawSvg: true, // Whether to treat SVG file paths as raw SVG content for icon rendering
 };
 
 // Generate the pluggin configuration by merging the default config with the user-provided config
@@ -37,8 +39,8 @@ export function genConfig(userConfig) {
             config.tags[userTag] = { ...config.tags[userTag], ...userTagConfig };
         } else {
             // Append the user-provided config for the new tag
-            let newTag = Object.create(defaultTag);
-            Object.assign(defaultTag, userTagConfig);
+            let newTag = Object.create(defaultConfig.defaultTag);
+            Object.assign(newTag, userTagConfig);
             config.tags[userTag] = newTag;
         }
     }
