@@ -57,7 +57,7 @@ import { resolveIcon } from './icons.js';
             console.debug('Processing callouts in the page:', vm.route.path);
             console.debug('Processing HTML:', html);
 
-            const htmlBetterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<type>${tagsPattern})\\]\\s?</p>\\s*(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
+            const htmlBetterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<type>${tagsPattern})\\s*\\]\\s?</p>\\s*(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
 
             return html.replace(htmlBetterCalloutsPattern,
                 (...args) => {
