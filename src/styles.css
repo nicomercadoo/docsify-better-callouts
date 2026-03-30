@@ -65,6 +65,10 @@
 }
 
 /* 5. Limpieza de márgenes del body */
+.better-callouts .callout-body > *:first-child {
+    margin-top: 0;
+}
+
 .better-callouts .callout-body > *:last-child {
     margin-bottom: 0;
 }
