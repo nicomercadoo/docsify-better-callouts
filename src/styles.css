@@ -97,6 +97,7 @@
     --callout-theme: var(--bc-red);
 }
 
-.better-callouts.default {
+.better-callouts.default,
+.better-callouts.regular-callouts {
     --callout-theme: var(--bc-gray);
 }

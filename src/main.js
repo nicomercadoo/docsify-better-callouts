@@ -31,10 +31,10 @@ import { resolveIcon } from './icons.js';
             console.debug('Processing callouts in the page:', vm.route.path);
             console.debug('Processing HTML:', html);
 
-            const htmlDocsifyCalloutPattern = new RegExp(`<blockquote>(?!\\s*<p>\\s*\\[\\s*!(?<tag>${tagsPattern})\\s*\\]\\s?</p>)\\s*(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
-
             let processedHTML = processBetterCalloutsHTML(html, tagsPattern, config);
-
+            if (config.processRegularCallouts) {
+                processedHTML = processRegularCalloutsHTML(processedHTML, config);
+            }
             return processedHTML;
         });
     }
@@ -45,9 +45,9 @@ import { resolveIcon } from './icons.js';
 })();
 
 function processBetterCalloutsMD(md, tagsPattern, config) {
-    const mdBetterCalloutHeadPattern = new RegExp(`^(?<level>( *>)*) *\\[\\s*!(?<tag>${tagsPattern})(?<ignored>[\\s\\S]*?)\\] ?(?<content>[\\s\\S]*?)$`, 'gm');
+    const mdBetterCalloutsHeadPattern = new RegExp(`^(?<level>( *>)*) *\\[\\s*!(?<tag>${tagsPattern})(?<ignored>[\\s\\S]*?)\\] ?(?<content>[\\s\\S]*?)$`, 'gm');
 
-    return md.replaceAll(mdBetterCalloutHeadPattern,
+    return md.replaceAll(mdBetterCalloutsHeadPattern,
         (...args) => {
             console.debug('Found a callout markdown:', args[0]);
             const namedCaptureGroups = args.at(-1);
@@ -98,6 +98,24 @@ function processBetterCalloutsHTML(html, tagsPattern, config) {
                 + `<div class="callout-body">${calloutContent}</div>`
                 + `</div>`; // end better-callouts
             console.debug('Generated better callout HTML:', betterCallout);
+
+            return betterCallout;
+        });
+}
+
+function processRegularCalloutsHTML(html, config) {
+    const htmlRegularCalloutsPattern = new RegExp(`<blockquote>(?!\\s*<p>\\s*\\[\\s*![\\s\\S]*?\\s*\\]\\s?</p>)\\s*(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, 'g');
+
+    return html.replaceAll(htmlRegularCalloutsPattern,
+        (...args) => {
+            console.debug('Found a regular callout:', args[0]);
+            const namedCaptureGroups = args.at(-1);
+            const { content: calloutContent } = namedCaptureGroups;
+
+            const betterCallout = `<div class="better-callouts regular-callout">`
+                + `<div class="callout-body">${calloutContent}</div>`
+                + `</div>`; // end regular callout
+            console.debug('Generated regular callout HTML:', betterCallout);
 
             return betterCallout;
         });

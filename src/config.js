@@ -22,7 +22,8 @@ export const defaultConfig = {
     },
     defaultTag: defaultTag, // Default configuration for tags that are not explicitly defined
     svgFileAsRawSvg: true, // Whether to treat SVG file paths as raw SVG content for icon rendering
-    languagePacks: betterCalloutsLanguagePack // Built-in language packs
+    languagePacks: betterCalloutsLanguagePack, // Built-in language packs
+    processRegularCallouts: true, // Whether to process regular callouts (without the [!TAG] syntax)
 };
 
 export function getTagConfig(tag, config) {
