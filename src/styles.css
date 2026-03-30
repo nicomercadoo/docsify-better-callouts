@@ -49,6 +49,21 @@
     fill: var(--callout-theme);
 }
 
+.better-callouts .svg-file-mask {
+    width: 100%;
+    height: 100%;
+    /* 1. Pintamos el bloque entero del color del tag actual */
+    background-color: var(--callout-theme);
+
+    /* 2. Aplicamos las propiedades de la máscara para que no se repita y se centre */
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+
 /* 5. Limpieza de márgenes del body */
 .better-callouts .callout-body > *:last-child {
     margin-bottom: 0;

@@ -6,7 +6,7 @@
 //=============================================================================
 
 import { mergeConfig, defaultConfig } from './config.js';
-import { resolveIcon } from './icons';
+import { resolveIcon } from './icons.js';
 
 // GitHub Alert like callouts for Docsify
 (function () {

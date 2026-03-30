@@ -7,8 +7,7 @@ export const tipIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" vi
 export const dangerIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M330-120 120-330v-300l210-210h300l210 210v300L630-120H330Zm36-190 114-114 114 114 56-56-114-114 114-114-56-56-114 114-114-114-56 56 114 114-114 114 56 56Zm-2 110h232l164-164v-232L596-760H364L200-596v232l164 164Zm116-280Z"/></svg>`;
 export const defaultIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M120-120v-720h720v720H120Zm80-80h560v-560H200v560Zm0 0v-560 560Z"/></svg>`
 
-
-export function resolveIcon(iconValue) {
+export function resolveIcon(iconValue, config) {
     console.debug('Rendering icon for value:', iconValue);
     // It is null, undefined, or an empty string. No icon to render.
     if (!iconValue || iconValue === '') return '';
@@ -20,9 +19,15 @@ export function resolveIcon(iconValue) {
         return iconStr;
     }
 
-    // It is a URL or a local img/SVG file
+    // It is a URL or a local image file
     const isUrlOrPath = /^(https?:\/\/|\.?\/)/i.test(iconStr) || /\.(svg|png|jpg|jpeg|gif|webp)$/i.test(iconStr);
     if (isUrlOrPath) {
+        // It is an SVG file path and should be treated as raw SVG content, not an image source
+        const isSvgPath = /\.svg$/i.test(iconStr);
+        if (isSvgPath && config.svgFileAsRawSvg) {
+            return `<div class="svg-file-mask icon" style="-webkit-mask-image: url('${iconStr}'); mask-image: url('${iconStr}');"></div>`;
+        }
+
         return `<img src="${iconStr}" class="icon-img icon" alt="icon"/>`;
     }
 
