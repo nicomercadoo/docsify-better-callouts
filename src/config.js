@@ -1,4 +1,5 @@
 import * as icons from './icons.js';
+import { betterCalloutsLanguagePack } from './languages.js';
 
 const defaultTag = {
     label: 'NOTE',
@@ -12,11 +13,8 @@ export const defaultConfig = {
         'NOTE': { label: 'Note', icon: icons.infoIcon, cssClass: 'note' },
         'WARNING|WARN': { label: 'Warning', icon: icons.warningIcon, cssClass: 'warning' },
         'DEFINITION|DEF': { label: 'Definition', icon: icons.defIcon, cssClass: 'definition' },
-        // 'WARNING': { label: 'Warning', icon: icons.warningIcon, cssClass: 'warning' },
-        // 'DEFINITION': { label: 'Definition', icon: icons.defIcon, cssClass: 'definition' },
         'TIP': { label: 'Tip', icon: icons.tipIcon, cssClass: 'tip' },
         'INFO': { label: 'Info', icon: icons.infoIcon, cssClass: 'info' },
-        'ADVICE': { label: 'Advice', icon: icons.warningIcon, cssClass: 'advice' },
         'ATTENTION': { label: 'Atterntion', icon: icons.warningIcon, cssClass: 'attention' },
         'IMPORTANT': { label: 'Important', icon: icons.warningIcon, cssClass: 'important' },
         'DANGER': { label: 'Danger', icon: icons.dangerIcon, cssClass: 'danger' },
@@ -24,6 +22,7 @@ export const defaultConfig = {
     },
     defaultTag: defaultTag, // Default configuration for tags that are not explicitly defined
     svgFileAsRawSvg: true, // Whether to treat SVG file paths as raw SVG content for icon rendering
+    languagePacks: betterCalloutsLanguagePack // Built-in language packs
 };
 
 export function getTagConfig(tag, config) {
@@ -43,41 +42,56 @@ export function getTagConfig(tag, config) {
     return tagConfig || config.defaultTag;
 }
 
-// Generate the plugin configuration by merging the default config with the user-provided config
-// Merge user config with default config
-// User config overrides default config
+/**
+ * Main Entry Point: Merges base config with language packs and user overrides
+ */
 export function mergeConfig(baseConfig, userConfig) {
-    if (Object.keys(userConfig).length === 0) return baseConfig;
+    if (!userConfig || Object.keys(userConfig).length === 0) return baseConfig;
 
-    checkUserConfigWith(baseConfig, userConfig);
+    checkUserInvalidConfigEntries(baseConfig, userConfig);
+    checkUserMissingRequiredConfigEntries(userConfig);
 
-    const config = { ...baseConfig, tags: { ...baseConfig.tags } };
+    // 1. Initial Deep Copy (shallow on first level, deep on tags)
+    let config = { ...baseConfig, tags: { ...baseConfig.tags } };
 
-    if (!userConfig.tags) return config;
+    // 2. Apply Language Pack Overrides (Lower priority than specific user tags)
+    const languagePack = getLanguagePack(userConfig.lang, baseConfig, userConfig);
+    if (languagePack) {
+        config = applyTagOverrides(config, languagePack.tags, baseConfig.defaultTag);
+    }
 
-    for (const [userTag, userTagConfig] of Object.entries(userConfig.tags)) {
+    // 3. Apply General User Tags (Highest priority)
+    if (userConfig.tags) {
+        config = applyTagOverrides(config, userConfig.tags, baseConfig.defaultTag);
+    }
+
+    return config;
+}
+
+/**
+ * Core Logic: Applies a set of overrides to the current configuration
+ */
+function applyTagOverrides(config, overrides, defaultTag) {
+    if (!overrides) return config;
+
+    for (const [userTag, userTagConfig] of Object.entries(overrides)) {
         let matched = false;
 
         for (const baseKey of Object.keys(config.tags)) {
-            // Case A: Direct exact match
             if (handleExactMatch(config, baseKey, userTag, userTagConfig)) {
                 matched = true;
-                break; // Processed, move to the next user tag
+                break;
             }
-
-            // Case B: Subset intersection
             if (handleIntersectionMatch(config, baseKey, userTag, userTagConfig)) {
                 matched = true;
-                break; // Processed, move to the next user tag
+                break;
             }
         }
 
-        // Case C: The user created a new tag
         if (!matched) {
-            handleNewTag(config, baseConfig.defaultTag, userTag, userTagConfig);
+            handleNewTag(config, defaultTag, userTag, userTagConfig);
         }
     }
-
     return config;
 }
 
@@ -137,8 +151,26 @@ function handleNewTag(config, defaultTag, userTag, userTagConfig) {
     config.tags[userTag] = newTag;
 }
 
+function getLanguagePack(lang, baseConfig, userConfig) {
+    const userLangs = userConfig.languagePacks ? Object.keys(userConfig.languagePacks) : [];
+    const defaultLangs = baseConfig.languagePacks ? Object.keys(baseConfig.languagePacks) : [];
+    const availableLangs = `By User: ${userLangs.join(', ') || 'None'}; By Better Callouts: ${defaultLangs.join(', ') || 'None'}`;
+    let LanguagePack = null;
 
-function checkUserConfigWith(baseConfig, userConfig) {
+    if (lang && userConfig.languagePacks && userConfig.languagePacks[lang]) {
+        LanguagePack = userConfig.languagePacks[lang];
+    } else if (lang && baseConfig.languagePacks && baseConfig.languagePacks[lang]) {
+        LanguagePack = baseConfig.languagePacks[lang];
+    }
+
+    if (!LanguagePack) {
+        console.warn(`docsify-better-callouts: Language "${lang}" specified in configuration but no corresponding language pack found. Available languages are: ${availableLangs}.`);
+    }
+
+    return LanguagePack;
+}
+
+function checkUserInvalidConfigEntries(baseConfig, userConfig) {
     validKeys = Object.keys(baseConfig);
     // console.debug('Valid configuration keys:', validKeys);
     // console.debug('User keys:', Object.keys(userConfig));
@@ -150,6 +182,19 @@ function checkUserConfigWith(baseConfig, userConfig) {
         }
     }
 
+    // Check for invalid properties in the user config for each tag
+    for (const [tag, tagConfig] of Object.entries(userConfig.tags || {})) {
+        const validTagConfigKeys = Object.keys(baseConfig.defaultTag);
+        for (const key of Object.keys(tagConfig)) {
+            if (!validTagConfigKeys.includes(key)) {
+                console.warn(`docsify-better-callouts: Invalid configuration entry "${key}" for tag "${tag}". Valid entries are: ${validTagConfigKeys.join(', ')}. This entry will be ignored.`);
+            }
+        }
+    }
+}
+
+function checkUserMissingRequiredConfigEntries(userConfig) {
+
     // Check for missing required properties in the user config for each tag
     for (const [tag, tagConfig] of Object.entries(userConfig.tags || {})) {
         if (!tagConfig.label) {
@@ -160,16 +205,6 @@ function checkUserConfigWith(baseConfig, userConfig) {
         }
         if (!tagConfig.cssClass) {
             console.warn(`docsify-better-callouts: Missing required property "cssClass" for tag "${tag}". This tag will be rendered without a custom CSS class.`);
-        }
-    }
-
-    // Check for invalid properties in the user config for each tag
-    for (const [tag, tagConfig] of Object.entries(userConfig.tags || {})) {
-        const validTagConfigKeys = Object.keys(baseConfig.defaultTag);
-        for (const key of Object.keys(tagConfig)) {
-            if (!validTagConfigKeys.includes(key)) {
-                console.warn(`docsify-better-callouts: Invalid configuration entry "${key}" for tag "${tag}". Valid entries are: ${validTagConfigKeys.join(', ')}. This entry will be ignored.`);
-            }
         }
     }
 }
