@@ -9,16 +9,16 @@ const defaultTag = {
 // Callout types and their corresponding labels and CSS classes
 const defaultConfig = {
     tags: {
-        'NOTE': { label: '<strong>Note</strong>', icon: icons.infoIcon, cssClass: 'note' },
-        'WARNING': { label: '<strong>Warning</strong>', icon: icons.warningIcon, cssClass: 'warning' },
-        'DEFINITION': { label: '<strong>Definition</strong>', icon: icons.defIcon, cssClass: 'definition' },
-        'TIP': { label: '<strong>Tip</strong>', icon: icons.tipIcon, cssClass: 'tip' },
-        'INFO': { label: '<strong>Info</strong>', icon: icons.infoIcon, cssClass: 'info' },
-        'ADVICE': { label: '<strong>Advice</strong>', icon: icons.warningIcon, cssClass: 'advice' },
-        'ATTENTION': { label: '<strong>Atterntion</strong>', icon: icons.warningIcon, cssClass: 'attention' },
-        'IMPORTANT': { label: '<strong>Important</strong>', icon: icons.warningIcon, cssClass: 'important' },
-        'DANGER': { label: '<strong>Danger</strong>', icon: icons.dangerIcon, cssClass: 'danger' },
-        'CAUTION': { label: '<strong>Caution</strong>', icon: icons.dangerIcon, cssClass: 'caution' },
+        'NOTE': { label: 'Note', icon: icons.infoIcon, cssClass: 'note' },
+        'WARNING': { label: 'Warning', icon: icons.warningIcon, cssClass: 'warning' },
+        'DEFINITION': { label: 'Definition', icon: icons.defIcon, cssClass: 'definition' },
+        'TIP': { label: 'Tip', icon: icons.tipIcon, cssClass: 'tip' },
+        'INFO': { label: 'Info', icon: icons.infoIcon, cssClass: 'info' },
+        'ADVICE': { label: 'Advice', icon: icons.warningIcon, cssClass: 'advice' },
+        'ATTENTION': { label: 'Atterntion', icon: icons.warningIcon, cssClass: 'attention' },
+        'IMPORTANT': { label: 'Important', icon: icons.warningIcon, cssClass: 'important' },
+        'DANGER': { label: 'Danger', icon: icons.dangerIcon, cssClass: 'danger' },
+        'CAUTION': { label: 'Caution', icon: icons.dangerIcon, cssClass: 'caution' },
     }
 };
 
