@@ -8,7 +8,7 @@ export const dangerIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px"
 export const defaultIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M120-120v-720h720v720H120Zm80-80h560v-560H200v560Zm0 0v-560 560Z"/></svg>`
 
 export function resolveIcon(iconValue, config) {
-    console.debug('Rendering icon for value:', iconValue);
+    
     // It is null, undefined, or an empty string. No icon to render.
     if (!iconValue || iconValue === '') return '';
 

@@ -19,23 +19,20 @@ import { resolveIcon } from './icons.js';
             const currentPath = vm.route.path;
             config = mergeConfig(defaultConfig, userConfig, currentPath);
             tagsPattern = Object.keys(config.tags).join('|');
+
             console.debug('Config:', config);
             console.debug('vm:', vm);
-
-            console.debug('Processing markdown for callouts in the page:', vm.route.path);
-            console.debug('Original markdown:', md);
 
             return processBetterCalloutsMD(md, tagsPattern, config);
         });
 
         hook.afterEach(function (html) {
-            console.debug('Processing callouts in the page:', vm.route.path);
-            console.debug('Processing HTML:', html);
-
             let processedHTML = processBetterCalloutsHTML(html, tagsPattern, config);
+
             if (config.processRegularCallouts) {
                 processedHTML = processRegularCalloutsHTML(processedHTML, config);
             }
+
             return processedHTML;
         });
     }
@@ -51,7 +48,6 @@ function processBetterCalloutsMD(md, tagsPattern, config) {
 
     return md.replaceAll(mdBetterCalloutsHeadPattern,
         (...args) => {
-            console.debug('Found a callout markdown:', args[0]);
             const namedCaptureGroups = args.at(-1);
             const { level: calloutLevel, tag: calloutTag, ignored: ignoredContentInTag, content: calloutContent } = namedCaptureGroups;
 
@@ -66,7 +62,6 @@ function processBetterCalloutsMD(md, tagsPattern, config) {
                 */
                 cleanedCalloutHead += `\n${calloutLevel} ${calloutContent}`;
             }
-            console.debug('Cleaned callout head markdown:', cleanedCalloutHead);
 
             if (ignoredContentInTag) {
                 console.warn('docsify-better-callouts: Ignored content in head tag:', ignoredContentInTag);
@@ -81,7 +76,6 @@ function processBetterCalloutsHTML(html, tagsPattern, config) {
 
     return html.replaceAll(htmlBetterCalloutsPattern,
         (...args) => {
-            console.debug('Found a callout:', args[0]);
             const namedCaptureGroups = args.at(-1);
             const { tag: calloutType, content: calloutContent } = namedCaptureGroups;
 
@@ -90,7 +84,6 @@ function processBetterCalloutsHTML(html, tagsPattern, config) {
             const cssClass = tagConfig.cssClass;
             const label = tagConfig.label;
             const icon = resolveIcon(tagConfig.icon, config);
-            console.debug(`Callout tag "${calloutType}" will be rendered with label "${label}", CSS class "${cssClass}", and icon:`, icon);
 
             const betterCallout = `<div class="better-callouts ${cssClass}">`
                 + `<div class="callout-head">`
@@ -99,7 +92,6 @@ function processBetterCalloutsHTML(html, tagsPattern, config) {
                 + `</div>` // end callout-head
                 + `<div class="callout-body">${calloutContent}</div>`
                 + `</div>`; // end better-callouts
-            console.debug('Generated better callout HTML:', betterCallout);
 
             return betterCallout;
         });
@@ -110,14 +102,14 @@ function processRegularCalloutsHTML(html, config) {
 
     return html.replaceAll(htmlRegularCalloutsPattern,
         (...args) => {
-            console.debug('Found a regular callout:', args[0]);
+
             const namedCaptureGroups = args.at(-1);
             const { content: calloutContent } = namedCaptureGroups;
 
             const betterCallout = `<div class="better-callouts regular-callout">`
                 + `<div class="callout-body">${calloutContent}</div>`
                 + `</div>`; // end regular callout
-            console.debug('Generated regular callout HTML:', betterCallout);
+
 
             return betterCallout;
         });
