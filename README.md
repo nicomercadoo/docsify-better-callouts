@@ -21,11 +21,15 @@ A Docsify plugin to improve (and customize) the default callouts.
 
 You can use the plugin directly from JSDelivr:
 
+Paste these lines in your HTML `<head>`:
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/nicomercadoo/docsify-better-callouts@latest/dist/styles.css">
-<script src="https://cdn.jsdelivr.net/gh/nicomercadoo/docsify-better-callouts@latest/dist/main.js"></script>
 ```
 
+Paste this line in yout HTML `<body>` after loading Docsify:
+```html
+<script src="https://cdn.jsdelivr.net/gh/nicomercadoo/docsify-better-callouts@latest/dist/main.js"></script>
+```
 ### Manual 
 
 Clone and build the plugin:
