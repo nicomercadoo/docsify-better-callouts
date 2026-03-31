@@ -15,15 +15,12 @@ import { resolveIcon } from './icons.js';
         let tagsPattern;
         const userConfig = vm.config.betterCallouts || {};
 
-        hook.init(function () {
-            console.debug('Config:', config);
-            console.debug('vm:', vm);
-        });
-
         hook.beforeEach(function (md) {
             const currentPath = vm.route && vm.route.path
             config = mergeConfig(defaultConfig, userConfig, currentPath);
             tagsPattern = Object.keys(config.tags).join('|');
+            console.debug('Config:', config);
+            console.debug('vm:', vm);
 
             console.debug('Processing markdown for callouts in the page:', vm.route.path);
             console.debug('Original markdown:', md);
