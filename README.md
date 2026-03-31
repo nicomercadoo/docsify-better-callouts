@@ -23,13 +23,14 @@ You can use the plugin directly from JSDelivr:
 
 Paste these lines in your HTML `<head>`:
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/nicomercadoo/docsify-better-callouts@latest/dist/styles.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/nicomercadoo/docsify-better-callouts@main/dist/styles.css">
 ```
 
 Paste this line in yout HTML `<body>` after loading Docsify:
 ```html
-<script src="https://cdn.jsdelivr.net/gh/nicomercadoo/docsify-better-callouts@latest/dist/main.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/nicomercadoo/docsify-better-callouts@main/dist/main.js"></script>
 ```
+
 ### Manual 
 
 Clone and build the plugin:
