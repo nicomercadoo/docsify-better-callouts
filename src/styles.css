@@ -102,6 +102,6 @@
 }
 
 .better-callouts.default,
-.better-callouts.regular-callouts {
+.better-callouts.regular-callout {
     --callout-theme: var(--bc-gray);
 }
