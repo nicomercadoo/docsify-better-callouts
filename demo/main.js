@@ -5,7 +5,6 @@ var defIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 
 var tipIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M400-240q-33 0-56.5-23.5T320-320v-50q-57-39-88.5-100T200-600q0-117 81.5-198.5T480-880q117 0 198.5 81.5T760-600q0 69-31.5 129.5T640-370v50q0 33-23.5 56.5T560-240H400Zm0-80h160v-92l34-24q41-28 63.5-71.5T680-600q0-83-58.5-141.5T480-800q-83 0-141.5 58.5T280-600q0 49 22.5 92.5T366-436l34 24v92Zm0 240q-17 0-28.5-11.5T360-120v-40h240v40q0 17-11.5 28.5T560-80H400Zm80-520Z"/></svg>`;
 var dangerIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M330-120 120-330v-300l210-210h300l210 210v300L630-120H330Zm36-190 114-114 114 114 56-56-114-114 114-114-56-56-114 114-114-114-56 56 114 114-114 114 56 56Zm-2 110h232l164-164v-232L596-760H364L200-596v232l164 164Zm116-280Z"/></svg>`;
 function resolveIcon(iconValue, config) {
-  console.debug("Rendering icon for value:", iconValue);
   if (!iconValue || iconValue === "")
     return "";
   const iconStr = String(iconValue).trim();
@@ -93,37 +92,45 @@ function getTagConfig(tag, config) {
   }
   return tagConfig || config.defaultTag;
 }
-function mergeConfig(baseConfig, userConfig, currentPath) {
-  checkUserInvalidConfigEntries(baseConfig, userConfig);
+function applyUserOverrides(defaultConfig2, userConfig, currentPath) {
+  checkUserInvalidConfigEntries(defaultConfig2, userConfig);
   checkUserMissingRequiredConfigEntries(userConfig);
-  let config = { ...baseConfig, tags: { ...baseConfig.tags } };
-  const resolvedLang = resolveCurrentLanguage(baseConfig, userConfig, currentPath);
-  const languagePack = getLanguagePack(resolvedLang, baseConfig, userConfig);
+  const spetialTreatedKeys = ["tags", "languagePacks", "defaultLanguage"];
+  const directOverrideKeys = Object.keys(defaultConfig2).filter((key) => !spetialTreatedKeys.includes(key));
+  let config = { ...defaultConfig2 };
+  for (const [key, value] of Object.entries(userConfig)) {
+    if (directOverrideKeys.includes(key)) {
+      config[key] = value;
+    }
+  }
+  if (userConfig.defaultLanguage && !defaultConfig2.languagePacks?.[userConfig.defaultLanguage] && !userConfig.languagePacks?.[userConfig.defaultLanguage]) {
+    console.warn(`docsify-better-callouts: The specified default language "${userConfig.defaultLanguage}" does not have a corresponding language pack. Available languages are: ${Object.keys(defaultConfig2.languagePacks || {}).join(", ") || "None"}. Falling back to the default language specified in the base configuration: ${defaultConfig2.defaultLanguage}`);
+  } else if (userConfig.defaultLanguage) {
+    config.defaultLanguage = userConfig.defaultLanguage;
+  }
+  config.languagePacks = { ...defaultConfig2.languagePacks, ...userConfig.languagePacks };
+  const resolvedLang = resolveCurrentLanguage(config, currentPath);
+  const languagePack = config.languagePacks[resolvedLang];
   if (languagePack) {
-    config = applyTagOverrides(config, languagePack.tags, baseConfig.defaultTag);
+    config = applyTagOverrides(config, languagePack.tags, defaultConfig2.defaultTag);
   }
   if (userConfig.tags) {
-    config = applyTagOverrides(config, userConfig.tags, baseConfig.defaultTag);
+    config = applyTagOverrides(config, userConfig.tags, defaultConfig2.defaultTag);
   }
   return config;
 }
-function resolveCurrentLanguage(baseConfig, userConfig, currentPath) {
-  const shouldMatchPath = userConfig.matchLanguageWithCurrentPath ?? baseConfig.matchLanguageWithCurrentPath;
-  const defaultLanguage = userConfig.defaultLanguage || baseConfig.defaultLanguage;
-  if (shouldMatchPath && currentPath) {
-    const langs = getAvailableLanguageKeys(baseConfig, userConfig);
+function resolveCurrentLanguage(config, currentPath) {
+  if (config.matchLanguageWithCurrentPath && currentPath) {
+    const langs = getAvailableLanguageKeys(config);
     const langFromPath = resolveLanguageFromPath(currentPath, langs);
     if (langFromPath) {
       return langFromPath;
     }
   }
-  return defaultLanguage;
+  return config.defaultLanguage;
 }
-function getAvailableLanguageKeys(baseConfig, userConfig) {
-  return [
-    ...Object.keys(baseConfig.languagePacks || {}),
-    ...Object.keys(userConfig.languagePacks || {})
-  ];
+function getAvailableLanguageKeys(config) {
+  return Object.keys(config.languagePacks || {});
 }
 function resolveLanguageFromPath(path, availableLangs) {
   if (!path || !availableLangs || availableLangs.length === 0) {
@@ -190,25 +197,6 @@ function handleNewTag(config, defaultTag2, userTag, userTagConfig) {
   Object.assign(newTag, userTagConfig);
   config.tags[userTag] = newTag;
 }
-function getLanguagePack(lang, baseConfig, userConfig) {
-  const userLangs = userConfig.languagePacks ? Object.keys(userConfig.languagePacks) : [];
-  const defaultLangs = baseConfig.languagePacks ? Object.keys(baseConfig.languagePacks) : [];
-  const availableLangs = `By User: ${userLangs.join(", ") || "None"}; By Better Callouts: ${defaultLangs.join(", ") || "None"}`;
-  if (!lang) {
-    return null;
-  }
-  const normalizedLang = String(lang).toLowerCase();
-  const userLangKey = userLangs.find((key) => key.toLowerCase() === normalizedLang);
-  const defaultLangKey = defaultLangs.find((key) => key.toLowerCase() === normalizedLang);
-  if (userLangKey && userConfig.languagePacks) {
-    return userConfig.languagePacks[userLangKey];
-  }
-  if (defaultLangKey && baseConfig.languagePacks) {
-    return baseConfig.languagePacks[defaultLangKey];
-  }
-  console.warn(`docsify-better-callouts: Resolved language "${lang}" has no corresponding language pack. Available languages are: ${availableLangs}.`);
-  return null;
-}
 function checkUserInvalidConfigEntries(baseConfig, userConfig) {
   const validKeys = Object.keys(baseConfig);
   for (const key of Object.keys(userConfig)) {
@@ -244,20 +232,17 @@ function checkUserMissingRequiredConfigEntries(userConfig) {
   var betterCalloutsPlugin = function(hook, vm) {
     let config;
     let tagsPattern;
-    const userConfig = vm.config.betterCallouts || {};
     hook.beforeEach(function(md) {
+      const userConfig = vm.config.betterCallouts || {};
       const currentPath = vm.route.path;
-      config = mergeConfig(defaultConfig, userConfig, currentPath);
+      console.debug("User Config:", userConfig);
+      config = applyUserOverrides(defaultConfig, userConfig, currentPath);
       tagsPattern = Object.keys(config.tags).join("|");
       console.debug("Config:", config);
       console.debug("vm:", vm);
-      console.debug("Processing markdown for callouts in the page:", vm.route.path);
-      console.debug("Original markdown:", md);
       return processBetterCalloutsMD(md, tagsPattern, config);
     });
     hook.afterEach(function(html) {
-      console.debug("Processing callouts in the page:", vm.route.path);
-      console.debug("Processing HTML:", html);
       let processedHTML = processBetterCalloutsHTML(html, tagsPattern, config);
       if (config.processRegularCallouts) {
         processedHTML = processRegularCalloutsHTML(processedHTML, config);
@@ -271,7 +256,6 @@ function checkUserMissingRequiredConfigEntries(userConfig) {
 function processBetterCalloutsMD(md, tagsPattern, config) {
   const mdBetterCalloutsHeadPattern = new RegExp(`^(?<level>( *>)*) *\\[\\s*!(?<tag>${tagsPattern})(?<ignored>[\\s\\S]*?)\\] ?(?<content>[\\s\\S]*?)$`, "gm");
   return md.replaceAll(mdBetterCalloutsHeadPattern, (...args) => {
-    console.debug("Found a callout markdown:", args[0]);
     const namedCaptureGroups = args.at(-1);
     const { level: calloutLevel, tag: calloutTag, ignored: ignoredContentInTag, content: calloutContent } = namedCaptureGroups;
     let cleanedCalloutHead = `${calloutLevel} [!${calloutTag}]
@@ -280,7 +264,6 @@ ${calloutLevel}`;
       cleanedCalloutHead += `
 ${calloutLevel} ${calloutContent}`;
     }
-    console.debug("Cleaned callout head markdown:", cleanedCalloutHead);
     if (ignoredContentInTag) {
       console.warn("docsify-better-callouts: Ignored content in head tag:", ignoredContentInTag);
     }
@@ -290,30 +273,25 @@ ${calloutLevel} ${calloutContent}`;
 function processBetterCalloutsHTML(html, tagsPattern, config) {
   const htmlBetterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<tag>${tagsPattern})\\s*\\]\\s?</p>\\s*(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, "g");
   return html.replaceAll(htmlBetterCalloutsPattern, (...args) => {
-    console.debug("Found a callout:", args[0]);
     const namedCaptureGroups = args.at(-1);
     const { tag: calloutType, content: calloutContent } = namedCaptureGroups;
     const tagConfig = getTagConfig(calloutType, config);
     const cssClass = tagConfig.cssClass;
     const label = tagConfig.label;
     const icon = resolveIcon(tagConfig.icon, config);
-    console.debug(`Callout tag "${calloutType}" will be rendered with label "${label}", CSS class "${cssClass}", and icon:`, icon);
     const betterCallout = `<div class="better-callouts ${cssClass}">` + `<div class="callout-head">` + `<div class="callout-icon">${icon}</div>` + `<div class="callout-label">${label}</div>` + `</div>` + `<div class="callout-body">${calloutContent}</div>` + `</div>`;
-    console.debug("Generated better callout HTML:", betterCallout);
     return betterCallout;
   });
 }
 function processRegularCalloutsHTML(html, config) {
   const htmlRegularCalloutsPattern = new RegExp(`<blockquote>(?!\\s*<p>\\s*\\[\\s*![\\s\\S]*?\\s*\\]\\s?</p>)\\s*(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, "g");
   return html.replaceAll(htmlRegularCalloutsPattern, (...args) => {
-    console.debug("Found a regular callout:", args[0]);
     const namedCaptureGroups = args.at(-1);
     const { content: calloutContent } = namedCaptureGroups;
     const betterCallout = `<div class="better-callouts regular-callout">` + `<div class="callout-body">${calloutContent}</div>` + `</div>`;
-    console.debug("Generated regular callout HTML:", betterCallout);
     return betterCallout;
   });
 }
 
-//# debugId=DA900A6ED916570064756E2164756E21
+//# debugId=908C732001B51E1D64756E2164756E21
 //# sourceMappingURL=main.js.map
