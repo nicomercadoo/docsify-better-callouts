@@ -71,55 +71,20 @@ export function applyUserOverrides(defaultConfig, userConfig, currentPath) {
     // 3. Overrides the language packs
     config.languagePacks = { ...defaultConfig.languagePacks, ...userConfig.languagePacks };
 
-    // 3. Handle language pack overrides (lower priority than specific user tags)
+    // 4. Handle language pack overrides (lower priority than specific user tags)
     const resolvedLang = resolveCurrentLanguage(config, currentPath);
-    console.debug('Resolved language for current path:', resolvedLang);
-    console.debug('Available language packs after merging user overrides:', Object.keys(config.languagePacks));
     const languagePack = config.languagePacks[resolvedLang];
-    console.debug('languagePack:', languagePack);
     if (languagePack) {
-        console.debug('Lang ovr:')
         config = applyTagOverrides(config, languagePack.tags, defaultConfig.defaultTag);
-        console.debug(`Applied language pack for resolved language "${resolvedLang}":`, languagePack);
-        console.debug('Config after applying language pack overrides:', config);
     }
 
-    // 4. Handle user tag overrides (highest priority)
+    // 5. Handle user tag overrides (highest priority)
     if (userConfig.tags) {
-        console.debug('Applying user tag overrides:', userConfig.tags);
         config = applyTagOverrides(config, userConfig.tags, defaultConfig.defaultTag);
     }
 
     return config;
 }
-
-// TODO: Refactor mergeConfig
-/**
- * Main Entry Point: Merges base config with language packs and user overrides
- */
-// export function mergeConfig(baseConfig, userConfig, currentPath) {
-
-//     // 1. Initial Deep Copy (shallow on first level, deep on tags)
-//     let config = { ...baseConfig, ...userConfig, tags: { ...baseConfig.tags } };
-//     // config = { ...config, ...userConfig };
-
-//     // 2. Apply Language Pack Overrides (Lower priority than specific user tags)
-
-//     const resolvedLang = resolveCurrentLanguage(baseConfig, userConfig, currentPath);
-//     const languagePack = getLanguagePack(resolvedLang, baseConfig, userConfig);
-//     if (languagePack) {
-//         config = applyTagOverrides(config, languagePack.tags, baseConfig.defaultTag);
-//     }
-
-
-//     // 3. Apply General User Tags (Highest priority)
-//     if (userConfig.tags) {
-//         console.debug('Applying user tag overrides:', userConfig.tags);
-//         config = applyTagOverrides(config, userConfig.tags, baseConfig.defaultTag);
-//     }
-
-//     return config;
-// }
 
 function resolveCurrentLanguage(config, currentPath) {
     if (config.matchLanguageWithCurrentPath && currentPath) {
@@ -160,7 +125,6 @@ function resolveLanguageFromPath(path, availableLangs) {
  * Core Logic: Applies a set of overrides to the current configuration
  */
 function applyTagOverrides(config, overrides, defaultTag) {
-    console.debug('Applying tag overrides:', overrides);
     if (!overrides) return config;
 
     for (const [userTag, userTagConfig] of Object.entries(overrides)) {
@@ -242,8 +206,6 @@ function handleNewTag(config, defaultTag, userTag, userTagConfig) {
 
 function checkUserInvalidConfigEntries(baseConfig, userConfig) {
     const validKeys = Object.keys(baseConfig);
-    // console.debug('Valid configuration keys:', validKeys);
-    // console.debug('User keys:', Object.keys(userConfig));
 
     // Check for invalid configuration entries in the user config
     for (const key of Object.keys(userConfig)) {
