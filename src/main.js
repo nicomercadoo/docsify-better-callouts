@@ -13,19 +13,20 @@ import { resolveIcon } from './icons.js';
     var betterCalloutsPlugin = function (hook, vm) {
         let config;
         let tagsPattern;
+        const userConfig = vm.config.betterCallouts || {};
 
         hook.init(function () {
-            config = mergeConfig(defaultConfig, vm.config.betterCallouts || {});
+            refreshConfig(userConfig, vm.route && vm.route.path);
             console.debug('Config:', config);
             console.debug('vm:', vm);
-            tagsPattern = Object.keys(config.tags).join('|');
-        })
+        });
 
         hook.beforeEach(function (md) {
+            refreshConfig(userConfig, vm.route && vm.route.path);
             console.debug('Processing markdown for callouts in the page:', vm.route.path);
             console.debug('Original markdown:', md);
             return processBetterCalloutsMD(md, tagsPattern, config);
-        })
+        });
 
         hook.afterEach(function (html) {
             console.debug('Processing callouts in the page:', vm.route.path);
@@ -43,6 +44,11 @@ import { resolveIcon } from './icons.js';
     $docsify = $docsify || {}
     $docsify.plugins = [].concat(betterCalloutsPlugin, $docsify.plugins || [])
 })();
+
+function refreshConfig(userConfig, currentPath) {
+    config = mergeConfig(defaultConfig, userConfig, currentPath);
+    tagsPattern = Object.keys(config.tags).join('|');
+}
 
 function processBetterCalloutsMD(md, tagsPattern, config) {
     const mdBetterCalloutsHeadPattern = new RegExp(`^(?<level>( *>)*) *\\[\\s*!(?<tag>${tagsPattern})(?<ignored>[\\s\\S]*?)\\] ?(?<content>[\\s\\S]*?)$`, 'gm');

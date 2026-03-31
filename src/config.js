@@ -15,15 +15,17 @@ export const defaultConfig = {
         'DEFINITION|DEF': { label: 'Definition', icon: icons.defIcon, cssClass: 'definition' },
         'TIP': { label: 'Tip', icon: icons.tipIcon, cssClass: 'tip' },
         'INFO': { label: 'Info', icon: icons.infoIcon, cssClass: 'info' },
-        'ATTENTION': { label: 'Atterntion', icon: icons.warningIcon, cssClass: 'attention' },
+        'ATTENTION': { label: 'Attention', icon: icons.warningIcon, cssClass: 'attention' },
         'IMPORTANT': { label: 'Important', icon: icons.warningIcon, cssClass: 'important' },
         'DANGER': { label: 'Danger', icon: icons.dangerIcon, cssClass: 'danger' },
         'CAUTION': { label: 'Caution', icon: icons.dangerIcon, cssClass: 'caution' },
     },
     defaultTag: defaultTag, // Default configuration for tags that are not explicitly defined
     svgFileAsRawSvg: true, // Whether to treat SVG file paths as raw SVG content for icon rendering
+    defaultLanguage: 'en', // Default language for callout labels
     languagePacks: betterCalloutsLanguagePack, // Built-in language packs
     processRegularCallouts: true, // Whether to process regular callouts (without the [!TAG] syntax)
+    matchLanguageWithCurrentPath: true, // Whether to automatically match the language pack based on the current page path (e.g., /en/, /fr/, /zh-ch/ in the URL)
 };
 
 export function getTagConfig(tag, config) {
@@ -37,7 +39,7 @@ export function getTagConfig(tag, config) {
     }
 
     if (!tagConfig) {
-        console.warn(`docsify-better-callouts: No configuration found for callout type "${calloutType}". Using default values.`);
+        console.warn(`docsify-better-callouts: No configuration found for callout type "${tag}". Using default values.`);
     }
 
     return tagConfig || config.defaultTag;
@@ -46,8 +48,7 @@ export function getTagConfig(tag, config) {
 /**
  * Main Entry Point: Merges base config with language packs and user overrides
  */
-export function mergeConfig(baseConfig, userConfig) {
-    if (!userConfig || Object.keys(userConfig).length === 0) return baseConfig;
+export function mergeConfig(baseConfig, userConfig, currentPath) {
 
     checkUserInvalidConfigEntries(baseConfig, userConfig);
     checkUserMissingRequiredConfigEntries(userConfig);
@@ -56,7 +57,8 @@ export function mergeConfig(baseConfig, userConfig) {
     let config = { ...baseConfig, tags: { ...baseConfig.tags } };
 
     // 2. Apply Language Pack Overrides (Lower priority than specific user tags)
-    const languagePack = getLanguagePack(userConfig.lang, baseConfig, userConfig);
+    const resolvedLang = resolveCurrentLanguage(baseConfig, userConfig, currentPath);
+    const languagePack = getLanguagePack(resolvedLang, baseConfig, userConfig);
     if (languagePack) {
         config = applyTagOverrides(config, languagePack.tags, baseConfig.defaultTag);
     }
@@ -67,6 +69,47 @@ export function mergeConfig(baseConfig, userConfig) {
     }
 
     return config;
+}
+
+function resolveCurrentLanguage(baseConfig, userConfig, currentPath) {
+    const shouldMatchPath = userConfig.matchLanguageWithCurrentPath ?? baseConfig.matchLanguageWithCurrentPath;
+    const defaultLanguage = userConfig.defaultLanguage || baseConfig.defaultLanguage;
+
+    if (shouldMatchPath && currentPath) {
+        const langs = getAvailableLanguageKeys(baseConfig, userConfig);
+        const langFromPath = resolveLanguageFromPath(currentPath, langs);
+        if (langFromPath) {
+            return langFromPath;
+        }
+    }
+
+    return defaultLanguage;
+}
+
+function getAvailableLanguageKeys(baseConfig, userConfig) {
+    return [
+        ...Object.keys(baseConfig.languagePacks || {}),
+        ...Object.keys(userConfig.languagePacks || {}),
+    ];
+}
+
+function resolveLanguageFromPath(path, availableLangs) {
+    if (!path || !availableLangs || availableLangs.length === 0) {
+        return null;
+    }
+
+    const normalizedPath = String(path).toLowerCase();
+    const pathSegments = normalizedPath.split('/').filter(Boolean);
+    const normalizedLangs = [...new Set(availableLangs.map(lang => String(lang).toLowerCase()))];
+
+    for (const segment of pathSegments) {
+        const matchedLang = normalizedLangs.find(lang => lang === segment);
+        if (matchedLang) {
+            return matchedLang;
+        }
+    }
+
+    return null;
 }
 
 /**
@@ -156,23 +199,27 @@ function getLanguagePack(lang, baseConfig, userConfig) {
     const userLangs = userConfig.languagePacks ? Object.keys(userConfig.languagePacks) : [];
     const defaultLangs = baseConfig.languagePacks ? Object.keys(baseConfig.languagePacks) : [];
     const availableLangs = `By User: ${userLangs.join(', ') || 'None'}; By Better Callouts: ${defaultLangs.join(', ') || 'None'}`;
-    let LanguagePack = null;
-
-    if (lang && userConfig.languagePacks && userConfig.languagePacks[lang]) {
-        LanguagePack = userConfig.languagePacks[lang];
-    } else if (lang && baseConfig.languagePacks && baseConfig.languagePacks[lang]) {
-        LanguagePack = baseConfig.languagePacks[lang];
+    if (!lang) {
+        return null;
     }
 
-    if (!LanguagePack) {
-        console.warn(`docsify-better-callouts: Language "${lang}" specified in configuration but no corresponding language pack found. Available languages are: ${availableLangs}.`);
+    const normalizedLang = String(lang).toLowerCase();
+    const userLangKey = userLangs.find(key => key.toLowerCase() === normalizedLang);
+    const defaultLangKey = defaultLangs.find(key => key.toLowerCase() === normalizedLang);
+
+    if (userLangKey && userConfig.languagePacks) {
+        return userConfig.languagePacks[userLangKey];
+    }
+    if (defaultLangKey && baseConfig.languagePacks) {
+        return baseConfig.languagePacks[defaultLangKey];
     }
 
-    return LanguagePack;
+    console.warn(`docsify-better-callouts: Resolved language "${lang}" has no corresponding language pack. Available languages are: ${availableLangs}.`);
+    return null;
 }
 
 function checkUserInvalidConfigEntries(baseConfig, userConfig) {
-    validKeys = Object.keys(baseConfig);
+    const validKeys = Object.keys(baseConfig);
     // console.debug('Valid configuration keys:', validKeys);
     // console.debug('User keys:', Object.keys(userConfig));
 
