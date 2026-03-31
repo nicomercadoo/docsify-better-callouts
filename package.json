@@ -6,13 +6,19 @@
   "type": "module",
   "scripts": {
       "build": "bun build src/main.js src/styles.css --outdir=dist --minify",
-      "build:dev": "bun build src/main.js src/styles.css --outdir=dist --sourcemap",
-      "build:watch": "bun build src/main.js src/styles.css --outdir=dist --sourcemap --watch"
+      "build:dist": "bun run build",
+      "build:dev": "bun build src/main.js src/styles.css --outdir=demo --sourcemap",
+      "build:watch": "bun build src/main.js src/styles.css --outdir=demo --sourcemap --watch",
+      "demo": "bun run build:dev && bunx serve demo -l 8080"
   },
   "keywords": [
     "docsify",
     "docsify-plugin",
-    "markdown"
+    "markdown",
+    "callouts",
+    "alerts",
+    "blockquotes",
+    "quotes"
   ],
   "author": "Nicolás Mercado",
   "license": "GPL-3.0",
