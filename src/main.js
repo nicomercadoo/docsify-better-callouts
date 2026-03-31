@@ -16,15 +16,18 @@ import { resolveIcon } from './icons.js';
         const userConfig = vm.config.betterCallouts || {};
 
         hook.init(function () {
-            refreshConfig(userConfig, vm.route && vm.route.path);
             console.debug('Config:', config);
             console.debug('vm:', vm);
         });
 
         hook.beforeEach(function (md) {
-            refreshConfig(userConfig, vm.route && vm.route.path);
+            const currentPath = vm.route && vm.route.path
+            config = mergeConfig(defaultConfig, userConfig, currentPath);
+            tagsPattern = Object.keys(config.tags).join('|');
+
             console.debug('Processing markdown for callouts in the page:', vm.route.path);
             console.debug('Original markdown:', md);
+
             return processBetterCalloutsMD(md, tagsPattern, config);
         });
 
@@ -45,10 +48,6 @@ import { resolveIcon } from './icons.js';
     $docsify.plugins = [].concat(betterCalloutsPlugin, $docsify.plugins || [])
 })();
 
-function refreshConfig(userConfig, currentPath) {
-    config = mergeConfig(defaultConfig, userConfig, currentPath);
-    tagsPattern = Object.keys(config.tags).join('|');
-}
 
 function processBetterCalloutsMD(md, tagsPattern, config) {
     const mdBetterCalloutsHeadPattern = new RegExp(`^(?<level>( *>)*) *\\[\\s*!(?<tag>${tagsPattern})(?<ignored>[\\s\\S]*?)\\] ?(?<content>[\\s\\S]*?)$`, 'gm');
