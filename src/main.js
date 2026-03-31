@@ -16,7 +16,7 @@ import { resolveIcon } from './icons.js';
         const userConfig = vm.config.betterCallouts || {};
 
         hook.beforeEach(function (md) {
-            const currentPath = vm.route && vm.route.path
+            const currentPath = vm.route.path;
             config = mergeConfig(defaultConfig, userConfig, currentPath);
             tagsPattern = Object.keys(config.tags).join('|');
             console.debug('Config:', config);
