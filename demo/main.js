@@ -246,7 +246,7 @@ function checkUserMissingRequiredConfigEntries(userConfig) {
     let tagsPattern;
     const userConfig = vm.config.betterCallouts || {};
     hook.beforeEach(function(md) {
-      const currentPath = vm.route && vm.route.path;
+      const currentPath = vm.route.path;
       config = mergeConfig(defaultConfig, userConfig, currentPath);
       tagsPattern = Object.keys(config.tags).join("|");
       console.debug("Config:", config);
@@ -315,5 +315,5 @@ function processRegularCalloutsHTML(html, config) {
   });
 }
 
-//# debugId=1297CE28AFE2303F64756E2164756E21
+//# debugId=DA900A6ED916570064756E2164756E21
 //# sourceMappingURL=main.js.map
