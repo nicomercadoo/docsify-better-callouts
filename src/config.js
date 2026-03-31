@@ -45,52 +45,96 @@ export function getTagConfig(tag, config) {
     return tagConfig || config.defaultTag;
 }
 
-/**
- * Main Entry Point: Merges base config with language packs and user overrides
- */
-export function mergeConfig(baseConfig, userConfig, currentPath) {
 
-    checkUserInvalidConfigEntries(baseConfig, userConfig);
+export function applyUserOverrides(defaultConfig, userConfig, currentPath) {
+    checkUserInvalidConfigEntries(defaultConfig, userConfig);
     checkUserMissingRequiredConfigEntries(userConfig);
 
-    // 1. Initial Deep Copy (shallow on first level, deep on tags)
-    let config = { ...baseConfig, tags: { ...baseConfig.tags } };
+    const spetialTreatedKeys = ['tags', 'languagePacks', 'defaultLanguage'];
+    const directOverrideKeys = Object.keys(defaultConfig).filter(key => !spetialTreatedKeys.includes(key));
+    let config = { ...defaultConfig };
 
-    // 2. Apply Language Pack Overrides (Lower priority than specific user tags)
-    const resolvedLang = resolveCurrentLanguage(baseConfig, userConfig, currentPath);
-    const languagePack = getLanguagePack(resolvedLang, baseConfig, userConfig);
-    if (languagePack) {
-        config = applyTagOverrides(config, languagePack.tags, baseConfig.defaultTag);
+    // 1. Overrides first level, simple fields (non-nested, non-spetial-treated)
+    for (const [key, value] of Object.entries(userConfig)) {
+        if (directOverrideKeys.includes(key)) {
+            config[key] = value;
+        }
     }
 
-    // 3. Apply General User Tags (Highest priority)
+    // 2. Handle potential default language issues before applying language pack overrides
+    if (userConfig.defaultLanguage && !defaultConfig.languagePacks?.[userConfig.defaultLanguage] && !userConfig.languagePacks?.[userConfig.defaultLanguage]) {
+        console.warn(`docsify-better-callouts: The specified default language "${userConfig.defaultLanguage}" does not have a corresponding language pack. Available languages are: ${Object.keys(defaultConfig.languagePacks || {}).join(', ') || 'None'}. Falling back to the default language specified in the base configuration: ${defaultConfig.defaultLanguage}`);
+    } else if (userConfig.defaultLanguage) {
+        config.defaultLanguage = userConfig.defaultLanguage;
+    }
+
+    // 3. Overrides the language packs
+    config.languagePacks = { ...defaultConfig.languagePacks, ...userConfig.languagePacks };
+
+    // 3. Handle language pack overrides (lower priority than specific user tags)
+    const resolvedLang = resolveCurrentLanguage(config, currentPath);
+    console.debug('Resolved language for current path:', resolvedLang);
+    console.debug('Available language packs after merging user overrides:', Object.keys(config.languagePacks));
+    const languagePack = config.languagePacks[resolvedLang];
+    console.debug('languagePack:', languagePack);
+    if (languagePack) {
+        console.debug('Lang ovr:')
+        config = applyTagOverrides(config, languagePack.tags, defaultConfig.defaultTag);
+        console.debug(`Applied language pack for resolved language "${resolvedLang}":`, languagePack);
+        console.debug('Config after applying language pack overrides:', config);
+    }
+
+    // 4. Handle user tag overrides (highest priority)
     if (userConfig.tags) {
-        config = applyTagOverrides(config, userConfig.tags, baseConfig.defaultTag);
+        console.debug('Applying user tag overrides:', userConfig.tags);
+        config = applyTagOverrides(config, userConfig.tags, defaultConfig.defaultTag);
     }
 
     return config;
 }
 
-function resolveCurrentLanguage(baseConfig, userConfig, currentPath) {
-    const shouldMatchPath = userConfig.matchLanguageWithCurrentPath ?? baseConfig.matchLanguageWithCurrentPath;
-    const defaultLanguage = userConfig.defaultLanguage || baseConfig.defaultLanguage;
+// TODO: Refactor mergeConfig
+/**
+ * Main Entry Point: Merges base config with language packs and user overrides
+ */
+// export function mergeConfig(baseConfig, userConfig, currentPath) {
 
-    if (shouldMatchPath && currentPath) {
-        const langs = getAvailableLanguageKeys(baseConfig, userConfig);
+//     // 1. Initial Deep Copy (shallow on first level, deep on tags)
+//     let config = { ...baseConfig, ...userConfig, tags: { ...baseConfig.tags } };
+//     // config = { ...config, ...userConfig };
+
+//     // 2. Apply Language Pack Overrides (Lower priority than specific user tags)
+
+//     const resolvedLang = resolveCurrentLanguage(baseConfig, userConfig, currentPath);
+//     const languagePack = getLanguagePack(resolvedLang, baseConfig, userConfig);
+//     if (languagePack) {
+//         config = applyTagOverrides(config, languagePack.tags, baseConfig.defaultTag);
+//     }
+
+
+//     // 3. Apply General User Tags (Highest priority)
+//     if (userConfig.tags) {
+//         console.debug('Applying user tag overrides:', userConfig.tags);
+//         config = applyTagOverrides(config, userConfig.tags, baseConfig.defaultTag);
+//     }
+
+//     return config;
+// }
+
+function resolveCurrentLanguage(config, currentPath) {
+    if (config.matchLanguageWithCurrentPath && currentPath) {
+        const langs = getAvailableLanguageKeys(config);
         const langFromPath = resolveLanguageFromPath(currentPath, langs);
         if (langFromPath) {
             return langFromPath;
         }
     }
 
-    return defaultLanguage;
+    return config.defaultLanguage;
 }
 
-function getAvailableLanguageKeys(baseConfig, userConfig) {
-    return [
-        ...Object.keys(baseConfig.languagePacks || {}),
-        ...Object.keys(userConfig.languagePacks || {}),
-    ];
+function getAvailableLanguageKeys(config) {
+    return Object.keys(config.languagePacks || {});
 }
 
 function resolveLanguageFromPath(path, availableLangs) {
@@ -116,6 +160,7 @@ function resolveLanguageFromPath(path, availableLangs) {
  * Core Logic: Applies a set of overrides to the current configuration
  */
 function applyTagOverrides(config, overrides, defaultTag) {
+    console.debug('Applying tag overrides:', overrides);
     if (!overrides) return config;
 
     for (const [userTag, userTagConfig] of Object.entries(overrides)) {
@@ -193,29 +238,6 @@ function handleNewTag(config, defaultTag, userTag, userTagConfig) {
     let newTag = Object.create(defaultTag);
     Object.assign(newTag, userTagConfig);
     config.tags[userTag] = newTag;
-}
-
-function getLanguagePack(lang, baseConfig, userConfig) {
-    const userLangs = userConfig.languagePacks ? Object.keys(userConfig.languagePacks) : [];
-    const defaultLangs = baseConfig.languagePacks ? Object.keys(baseConfig.languagePacks) : [];
-    const availableLangs = `By User: ${userLangs.join(', ') || 'None'}; By Better Callouts: ${defaultLangs.join(', ') || 'None'}`;
-    if (!lang) {
-        return null;
-    }
-
-    const normalizedLang = String(lang).toLowerCase();
-    const userLangKey = userLangs.find(key => key.toLowerCase() === normalizedLang);
-    const defaultLangKey = defaultLangs.find(key => key.toLowerCase() === normalizedLang);
-
-    if (userLangKey && userConfig.languagePacks) {
-        return userConfig.languagePacks[userLangKey];
-    }
-    if (defaultLangKey && baseConfig.languagePacks) {
-        return baseConfig.languagePacks[defaultLangKey];
-    }
-
-    console.warn(`docsify-better-callouts: Resolved language "${lang}" has no corresponding language pack. Available languages are: ${availableLangs}.`);
-    return null;
 }
 
 function checkUserInvalidConfigEntries(baseConfig, userConfig) {

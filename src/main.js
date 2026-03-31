@@ -5,7 +5,7 @@
 // Date: 2026
 //=============================================================================
 
-import { mergeConfig, defaultConfig, getTagConfig } from './config.js';
+import { applyUserOverrides, defaultConfig, getTagConfig } from './config.js';
 import { resolveIcon } from './icons.js';
 
 // GitHub Alert like callouts for Docsify
@@ -13,11 +13,13 @@ import { resolveIcon } from './icons.js';
     var betterCalloutsPlugin = function (hook, vm) {
         let config;
         let tagsPattern;
-        const userConfig = vm.config.betterCallouts || {};
 
         hook.beforeEach(function (md) {
+            const userConfig = vm.config.betterCallouts || {};
             const currentPath = vm.route.path;
-            config = mergeConfig(defaultConfig, userConfig, currentPath);
+            console.debug('User Config:', userConfig);
+
+            config = applyUserOverrides(defaultConfig, userConfig, currentPath);
             tagsPattern = Object.keys(config.tags).join('|');
 
             console.debug('Config:', config);
