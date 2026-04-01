@@ -26,6 +26,11 @@ Paste these lines in your HTML `<head>`:
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/nicomercadoo/docsify-better-callouts@main/dist/styles.css">
 ```
 
+If you want to use the dark theme as well, load this after the previous line:
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/nicomercadoo/docsify-better-callouts@main/dist/styles-dark.css">
+```
+
 Paste this line in yout HTML `<body>` after loading Docsify:
 ```html
 <script src="https://cdn.jsdelivr.net/gh/nicomercadoo/docsify-better-callouts@main/dist/main.js"></script>
@@ -44,6 +49,7 @@ This generates distributable files in `dist/`:
 
 - `dist/main.js`
 - `dist/styles.css`
+- `dist/styles-dark.css`
 
 ## Usage with Docsify
 
@@ -237,6 +243,19 @@ Notes:
 - Use scoped selectors like `.better-callouts.my-note` to avoid style collisions.
 - You can override global palette variables (`--bc-green`, `--bc-blue`, etc.) in `:root` if you want a project-wide theme.
 - If `processRegularCallouts` is enabled, regular blockquotes use `.better-callouts.regular-callout`.
+
+### Dark Theme Stylesheet
+
+The plugin also ships with a dark-only stylesheet: `styles-dark.css`.
+
+- `styles.css` is the base (light) stylesheet.
+- `styles-dark.css` overrides color variables and callout background tint for dark UIs.
+- Load `styles-dark.css` after `styles.css`.
+
+```html
+<link rel="stylesheet" href="path/to/dist/styles.css">
+<link rel="stylesheet" href="path/to/dist/styles-dark.css">
+```
 
 ### How User Overrides Work
 
