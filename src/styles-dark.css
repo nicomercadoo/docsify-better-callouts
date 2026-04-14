@@ -4,13 +4,13 @@
 */
 
 :root {
-    --bc-green: #57d9a3;
-    --bc-blue: #5aa9ff;
+    --bc-green:  #57d9a3;
+    --bc-blue:   #5aa9ff;
     --bc-orange: #ffbe6b;
-    --bc-red: #ff7b72;
+    --bc-red:    #ff7b72;
     --bc-purple: #b392f0;
-    --bc-gray: #a5adba;
-    --bc-text: #e6edf3;
+    --bc-gray:   #a5adba;
+    --bc-text:   inherit;
 }
 
 .better-callouts {
