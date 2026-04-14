@@ -2,8 +2,8 @@ import * as icons from './icons.js';
 import { betterCalloutsLanguagePack } from './languages.js';
 
 const defaultTag = {
-    label: 'NOTE',
-    icon: icons.infoIcon,
+    label: '',
+    icon: '',
     cssClass: 'default',
 };
 
