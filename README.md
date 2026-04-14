@@ -65,7 +65,7 @@ Include Docsify, then load the plugin assets:
   window.$docsify = {
     name: 'My Docs',
     repo: '',
-    // oprional plugin config overrides
+    // optional plugin config overrides
     betterCallouts: {
       // ...
     }
@@ -102,7 +102,7 @@ Other examples:
 
 ## Configuration
 
-Configure through `window.$docsify.betterCallouts`:
+Configuration is done through the global `window.$docsify.betterCallouts` object by overriding any of the default config options.
 
 ```html
 <script>
@@ -140,7 +140,7 @@ Configure through `window.$docsify.betterCallouts`:
 ### Config Options
 
 - `tags`
-  Map of tag patterns to rendering config. Keys can be single tags (`NOTE`) or alternatives (`WARNING|WARN`).
+  Map of tag patterns to rendering config. Keys are regex patterns, which can be single tags, like `NOTE` or `TIP`, alternatives like `WARNING|WARN`, or more complex patterns like `DEF(INITION)?`.
 - `defaultTag`
   Fallback config when no tag matches.
 - `svgFileAsRawSvg` (`true` by default)
@@ -281,7 +281,7 @@ When you provide a tag override, the plugin applies one of these cases:
    - Example: overriding `NOTE` updates the built-in `NOTE` config.
 
 2. Intersection with grouped tags
-   - Built-in keys can contain alternatives, like `WARNING|WARN`.
+   - Built-in keys can contain alternatives, like `WARNING|WARN`, which are useful when you want to create alias with the same config.
    - If your key overlaps one of those variants, the plugin splits the original group:
      - keeps non-overridden variants under the remaining key
      - creates your key with inherited base values + your overrides
@@ -292,9 +292,27 @@ When you provide a tag override, the plugin applies one of these cases:
        - `WARNING` keeps previous config
        - `WARN` gets your custom config and inherits any fields you don't override from the original group config
 
+    > [!WARNING] 
+    > Be careful when overriding alternative tags. The plugin just recognizes `A|B|...|Z` patterns to prerform this splitting logic,
+    > but it doesn't know the semantics of your keys.
+    >
+    > If you have a base key like `DEF(INITION)?` and you override `DEF`, the plugin will treat it as a new key, with the possibility
+    > of never matching because the original pattern could match first and consume the `DEF` tag before your override is applied.
+    > In this case you won't be able to override just one of those variants without splitting the group yourself (for example, by
+    > changing the base key to `DEFINITION|DEF`).
+    >
+    > With the same logic, if you have a base key `WARNING|WARN` and you want to change the label for both `WARNING` and `WARN`, 
+    > you should override the whole key `WARNING|WARN` instead of just one variant.
+    > 
+    
 3. New key
    - If no match/intersection is found, a new tag entry is created.
    - It starts from `defaultTag`, then your fields are applied.
+
+> [!NOTE]
+> Notice that the tag keys are regex patterns, but keep in mind these patterns are internally injected into other regexes, so you
+> should avoid patterns that could match the whole document, like `.*`, or that could never match anything, like `^` or `$`. 
+> Stick to simple patterns that only match tags, like `NOTE`, `WARNING|WARN`, `DEF(INITION)?`, etc.
 
 #### Practical Example
 
