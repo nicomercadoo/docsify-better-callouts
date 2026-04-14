@@ -85,13 +85,10 @@ function getTagConfig(tag, config) {
     return config.defaultTag;
   }
   for (const prop of Object.keys(config.defaultTag)) {
-    console.debug(`Checking property "${prop}" for tag "${tag}"...`);
-    console.debug(`Current value:`, tagConfig[prop]);
     if (tagConfig[prop] === null || tagConfig[prop] === undefined) {
       tagConfig[prop] = config.defaultTag[prop];
     }
   }
-  console.debug(`Tag "${tag}" configuration:`, tagConfig);
   return tagConfig;
 }
 function searchTagConfig(tag, config) {
@@ -231,7 +228,6 @@ function checkUserMissingRequiredConfigEntries(userConfig) {
       console.warn(`docsify-better-callouts: Missing required property "label" for tag "${tag}". This tag will be rendered with the default label.`);
     }
     if (tagConfig.icon === undefined || tagConfig.icon === null) {
-      console.debug(tagConfig.icon);
       console.warn(`docsify-better-callouts: Missing required property "icon" for tag "${tag}". This tag will be rendered with the default icon.`);
     }
     if (tagConfig.cssClass === undefined || tagConfig.cssClass === null) {
@@ -248,11 +244,8 @@ function checkUserMissingRequiredConfigEntries(userConfig) {
     hook.beforeEach(function(md) {
       const userConfig = vm.config.betterCallouts || {};
       const currentPath = vm.route.path;
-      console.debug("User Config:", userConfig);
       config = applyUserOverrides(defaultConfig, userConfig, currentPath);
       tagsPattern = Object.keys(config.tags).join("|");
-      console.debug("Config:", config);
-      console.debug("vm:", vm);
       return processBetterCalloutsMD(md, tagsPattern, config);
     });
     hook.afterEach(function(html) {
@@ -286,7 +279,6 @@ ${calloutLevel} ${calloutContent}`;
 function processBetterCalloutsHTML(html, tagsPattern, config) {
   const htmlBetterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<tag>${tagsPattern})\\s*\\]\\s?</p>\\s*(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, "g");
   return html.replaceAll(htmlBetterCalloutsPattern, (...args) => {
-    console.debug("Args: ", args);
     const namedCaptureGroups = args.at(-1);
     const { tag: calloutType, content: calloutContent } = namedCaptureGroups;
     const tagConfig = getTagConfig(calloutType, config);
@@ -307,5 +299,5 @@ function processRegularCalloutsHTML(html, config) {
   });
 }
 
-//# debugId=21AB58AAFF2B402F64756E2164756E21
+//# debugId=10A1140BED80AF5264756E2164756E21
 //# sourceMappingURL=main.js.map
