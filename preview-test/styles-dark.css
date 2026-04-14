@@ -6,7 +6,7 @@
   --bc-red: #ff7b72;
   --bc-purple: #b392f0;
   --bc-gray: #a5adba;
-  --bc-text: #e6edf3;
+  --bc-text: inherit;
 }
 
 .better-callouts {
