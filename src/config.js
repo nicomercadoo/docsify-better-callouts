@@ -29,8 +29,25 @@ export const defaultConfig = {
 };
 
 export function getTagConfig(tag, config) {
-    let tagConfig = null;
+    let tagConfig = searchTagConfig(tag, config);
 
+    if (!tagConfig) {
+        return config.defaultTag;
+    }
+
+    for (const prop of Object.keys(config.defaultTag)) {
+        console.debug(`Checking property "${prop}" for tag "${tag}"...`);
+        console.debug(`Current value:`, tagConfig[prop]);
+        if (tagConfig[prop] === null || tagConfig[prop] === undefined) {
+            tagConfig[prop] = config.defaultTag[prop];
+        }
+    }
+    console.debug(`Tag "${tag}" configuration:`, tagConfig);
+    return tagConfig;
+}
+
+function searchTagConfig(tag, config) {
+    let tagConfig = null;
     for (const tagPattern of Object.keys(config.tags)) {
         if (RegExp(tagPattern).test(tag)) {
             tagConfig = config.tags[tagPattern];
@@ -38,11 +55,7 @@ export function getTagConfig(tag, config) {
         }
     }
 
-    if (!tagConfig) {
-        console.warn(`docsify-better-callouts: No configuration found for callout type "${tag}". Using default values.`);
-    }
-
-    return tagConfig || config.defaultTag;
+    return tagConfig;
 }
 
 
@@ -226,17 +239,17 @@ function checkUserInvalidConfigEntries(baseConfig, userConfig) {
 }
 
 function checkUserMissingRequiredConfigEntries(userConfig) {
-
-    // Check for missing required properties in the user config for each tag
+    // Check for missing required properties in the user config for each tag (allows empty values, but not undefined or null)
     for (const [tag, tagConfig] of Object.entries(userConfig.tags || {})) {
-        if (!tagConfig.label) {
-            console.warn(`docsify-better-callouts: Missing required property "label" for tag "${tag}". This tag will be rendered without a label.`);
+        if (tagConfig.label === undefined || tagConfig.label === null) {
+            console.warn(`docsify-better-callouts: Missing required property "label" for tag "${tag}". This tag will be rendered with the default label.`);
         }
-        if (!tagConfig.icon) {
-            console.warn(`docsify-better-callouts: Missing required property "icon" for tag "${tag}". This tag will be rendered without an icon.`);
+        if (tagConfig.icon === undefined || tagConfig.icon === null) {
+            console.debug(tagConfig.icon)
+            console.warn(`docsify-better-callouts: Missing required property "icon" for tag "${tag}". This tag will be rendered with the default icon.`);
         }
-        if (!tagConfig.cssClass) {
-            console.warn(`docsify-better-callouts: Missing required property "cssClass" for tag "${tag}". This tag will be rendered without a custom CSS class.`);
+        if (tagConfig.cssClass === undefined || tagConfig.cssClass === null) {
+            console.warn(`docsify-better-callouts: Missing required property "cssClass" for tag "${tag}". This tag will be rendered with the default CSS class.`);
         }
     }
 }

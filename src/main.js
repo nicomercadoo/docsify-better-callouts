@@ -78,6 +78,7 @@ function processBetterCalloutsHTML(html, tagsPattern, config) {
 
     return html.replaceAll(htmlBetterCalloutsPattern,
         (...args) => {
+            console.debug('Args: ', args);
             const namedCaptureGroups = args.at(-1);
             const { tag: calloutType, content: calloutContent } = namedCaptureGroups;
 
