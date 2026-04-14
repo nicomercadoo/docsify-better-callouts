@@ -17,13 +17,9 @@ import { resolveIcon } from './icons.js';
         hook.beforeEach(function (md) {
             const userConfig = vm.config.betterCallouts || {};
             const currentPath = vm.route.path;
-            console.debug('User Config:', userConfig);
 
             config = applyUserOverrides(defaultConfig, userConfig, currentPath);
             tagsPattern = Object.keys(config.tags).join('|');
-
-            console.debug('Config:', config);
-            console.debug('vm:', vm);
 
             return processBetterCalloutsMD(md, tagsPattern, config);
         });
@@ -78,7 +74,6 @@ function processBetterCalloutsHTML(html, tagsPattern, config) {
 
     return html.replaceAll(htmlBetterCalloutsPattern,
         (...args) => {
-            console.debug('Args: ', args);
             const namedCaptureGroups = args.at(-1);
             const { tag: calloutType, content: calloutContent } = namedCaptureGroups;
 

@@ -36,13 +36,10 @@ export function getTagConfig(tag, config) {
     }
 
     for (const prop of Object.keys(config.defaultTag)) {
-        console.debug(`Checking property "${prop}" for tag "${tag}"...`);
-        console.debug(`Current value:`, tagConfig[prop]);
         if (tagConfig[prop] === null || tagConfig[prop] === undefined) {
             tagConfig[prop] = config.defaultTag[prop];
         }
     }
-    console.debug(`Tag "${tag}" configuration:`, tagConfig);
     return tagConfig;
 }
 
@@ -245,7 +242,6 @@ function checkUserMissingRequiredConfigEntries(userConfig) {
             console.warn(`docsify-better-callouts: Missing required property "label" for tag "${tag}". This tag will be rendered with the default label.`);
         }
         if (tagConfig.icon === undefined || tagConfig.icon === null) {
-            console.debug(tagConfig.icon)
             console.warn(`docsify-better-callouts: Missing required property "icon" for tag "${tag}". This tag will be rendered with the default icon.`);
         }
         if (tagConfig.cssClass === undefined || tagConfig.cssClass === null) {
