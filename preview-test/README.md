@@ -21,3 +21,8 @@ This is a demo for the [docsify-better-callouts](https://github.com/nicolasmerca
 > [!INFO]
 > This is an info callout.
 
+> [!OTHER]
+> This is an other callout.
+
+> [!OTHERS]
+> This is an others callout.

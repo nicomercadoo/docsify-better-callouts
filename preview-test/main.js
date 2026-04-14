@@ -56,8 +56,8 @@ var betterCalloutsLanguagePack = {
 
 // src/config.js
 var defaultTag = {
-  label: "NOTE",
-  icon: infoIcon,
+  label: "",
+  icon: "",
   cssClass: "default"
 };
 var defaultConfig = {
@@ -80,6 +80,21 @@ var defaultConfig = {
   matchLanguageWithCurrentPath: true
 };
 function getTagConfig(tag, config) {
+  let tagConfig = searchTagConfig(tag, config);
+  if (!tagConfig) {
+    return config.defaultTag;
+  }
+  for (const prop of Object.keys(config.defaultTag)) {
+    console.debug(`Checking property "${prop}" for tag "${tag}"...`);
+    console.debug(`Current value:`, tagConfig[prop]);
+    if (tagConfig[prop] === null || tagConfig[prop] === undefined) {
+      tagConfig[prop] = config.defaultTag[prop];
+    }
+  }
+  console.debug(`Tag "${tag}" configuration:`, tagConfig);
+  return tagConfig;
+}
+function searchTagConfig(tag, config) {
   let tagConfig = null;
   for (const tagPattern of Object.keys(config.tags)) {
     if (RegExp(tagPattern).test(tag)) {
@@ -87,10 +102,7 @@ function getTagConfig(tag, config) {
       break;
     }
   }
-  if (!tagConfig) {
-    console.warn(`docsify-better-callouts: No configuration found for callout type "${tag}". Using default values.`);
-  }
-  return tagConfig || config.defaultTag;
+  return tagConfig;
 }
 function applyUserOverrides(defaultConfig2, userConfig, currentPath) {
   checkUserInvalidConfigEntries(defaultConfig2, userConfig);
@@ -215,14 +227,15 @@ function checkUserInvalidConfigEntries(baseConfig, userConfig) {
 }
 function checkUserMissingRequiredConfigEntries(userConfig) {
   for (const [tag, tagConfig] of Object.entries(userConfig.tags || {})) {
-    if (!tagConfig.label) {
-      console.warn(`docsify-better-callouts: Missing required property "label" for tag "${tag}". This tag will be rendered without a label.`);
+    if (tagConfig.label === undefined || tagConfig.label === null) {
+      console.warn(`docsify-better-callouts: Missing required property "label" for tag "${tag}". This tag will be rendered with the default label.`);
     }
-    if (!tagConfig.icon) {
-      console.warn(`docsify-better-callouts: Missing required property "icon" for tag "${tag}". This tag will be rendered without an icon.`);
+    if (tagConfig.icon === undefined || tagConfig.icon === null) {
+      console.debug(tagConfig.icon);
+      console.warn(`docsify-better-callouts: Missing required property "icon" for tag "${tag}". This tag will be rendered with the default icon.`);
     }
-    if (!tagConfig.cssClass) {
-      console.warn(`docsify-better-callouts: Missing required property "cssClass" for tag "${tag}". This tag will be rendered without a custom CSS class.`);
+    if (tagConfig.cssClass === undefined || tagConfig.cssClass === null) {
+      console.warn(`docsify-better-callouts: Missing required property "cssClass" for tag "${tag}". This tag will be rendered with the default CSS class.`);
     }
   }
 }
@@ -273,6 +286,7 @@ ${calloutLevel} ${calloutContent}`;
 function processBetterCalloutsHTML(html, tagsPattern, config) {
   const htmlBetterCalloutsPattern = new RegExp(`<blockquote>\\s*<p>\\s*\\[\\s*!(?<tag>${tagsPattern})\\s*\\]\\s?</p>\\s*(?<content>[\\s\\S]*?)\\s*<\\/blockquote>`, "g");
   return html.replaceAll(htmlBetterCalloutsPattern, (...args) => {
+    console.debug("Args: ", args);
     const namedCaptureGroups = args.at(-1);
     const { tag: calloutType, content: calloutContent } = namedCaptureGroups;
     const tagConfig = getTagConfig(calloutType, config);
@@ -293,5 +307,5 @@ function processRegularCalloutsHTML(html, config) {
   });
 }
 
-//# debugId=908C732001B51E1D64756E2164756E21
+//# debugId=21AB58AAFF2B402F64756E2164756E21
 //# sourceMappingURL=main.js.map
