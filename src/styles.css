@@ -47,6 +47,7 @@
     width: 100%;
     height: 100%;
     fill: var(--callout-theme);
+    background-color: transparent;
 }
 
 .better-callouts .callout-icon .svg-file-mask {
